@@ -1,94 +1,95 @@
 CREATE TABLE Story_Type(
-	story_type_id INTEGER,
-	story_name CHAR(40),
-	PRIMARY KEY(story_type_id)
+	id INTEGER,
+	name CHAR(40),
+	PRIMARY KEY(id)
 );
 
 CREATE TABLE Language(
-	language_id INTEGER,
+	id INTEGER,
 	code CHAR(3),
-	language_name CHAR(27),
-	PRIMARY KEY(language_id)
+	name CHAR(27),
+	PRIMARY KEY(id)
 );
 
 CREATE TABLE Series_Publication_Type(
-	publication_type_id INTEGER,
-	publication_type_name CHAR(8),
-	PRIMARY KEY(publication_type_id)
+	id INTEGER,
+	name CHAR(8),
+	PRIMARY KEY(id)
 );
 
 -- contains relationship publ_country
 CREATE TABLE Publisher(
-	publisher_id INTEGER,
-	publisher_name CHAR(124),
+	id INTEGER,
+	name CHAR(124),
 	country_id INTEGER NOT NULL,
 	year_began INTEGER,
 	year_ended INTEGER,
 	notes CHAR(3201),
 	url CHAR(130),
-	PRIMARY KEY(publisher_id),
-	FOREIGN KEY(country_id) REFERENCES Country
+	PRIMARY KEY(id),
+	FOREIGN KEY(country_id) REFERENCES Country(id)
 );
 
 -- contains relationship bg_publisher
 CREATE TABLE Brand_Group(
-	brand_group_id INTEGER,
+	id INTEGER,
+	name CHAR(94),
 	year_began INTEGER,
 	year_ended INTEGER,
 	notes CHAR(729),
 	url CHAR(152),
 	publisher_id INTEGER NOT NULL,
-	PRIMARY KEY(brand_group_id),
-	FOREIGN KEY(publisher_id) REFERENCES Publisher
+	PRIMARY KEY(id),
+	FOREIGN KEY(publisher_id) REFERENCES Publisher(id)
 );
 
 -- contains relationships ind_country and ip_publisher
 CREATE TABLE Indicia_Publisher(
-	indicia_publisher_id INTEGER,
-	indicia_publisher_name CHAR(124),
-	country_id INTEGER NOT NULL,
+	id INTEGER,
+	name CHAR(124),
 	publisher_id INTEGER NOT NULL,
+	country_id INTEGER NOT NULL,
 	year_began INTEGER,
 	year_ended INTEGER,
 	is_surrogate BIT, -- 0 or 1 value
 	notes CHAR(2593),
 	url CHAR(115),
-	PRIMARY KEY(indicia_publisher_id),
-	FOREIGN KEY(country_id) REFERENCES Country,
-	FOREIGN KEY(publisher_id) REFERENCES Publisher
+	PRIMARY KEY(id),
+	FOREIGN KEY(country_id) REFERENCES Country(id),
+	FOREIGN KEY(publisher_id) REFERENCES Publisher(id)
 );
 
 CREATE TABLE Country(
-	country_id INTEGER,
-	country_code CHAR(4),
-	country_name CHAR(36),
-	PRIMARY KEY(country_id)
+	id INTEGER,
+	code CHAR(4),
+	name CHAR(36),
+	PRIMARY KEY(id)
 );
 
 -- contains relationships story_target and story_origin
 CREATE TABLE Story_Reprint(
-	story_reprint_id INTEGER,
+	id INTEGER,
 	origin_id INTEGER NOT NULL,
 	target_id INTEGER NOT NULL,
-	PRIMARY KEY(story_reprint_id),
-	FOREIGN KEY(origin_id) REFERENCES Story(story_id),
-	FOREIGN KEY (target_id) REFERENCES Story(story_id)
+	PRIMARY KEY(id),
+	FOREIGN KEY(origin_id) REFERENCES Story(id),
+	FOREIGN KEY (target_id) REFERENCES Story(id)
 );
 
 -- contains relationships issue_target and issue_origin
 CREATE TABLE Issue_Reprint(
-	issue_reprint_id INTEGER,
+	id INTEGER,
 	origin_issue_id INTEGER NOT NULL,
 	target_issue_id INTEGER NOT NULL,
-	PRIMARY KEY(issue_reprint_id),
-	FOREIGN KEY(origin_issue_id) REFERENCES Issue(issue_id),
-	FOREIGN KEY(target_issue_id) REFERENCES Issue(issue_id)
+	PRIMARY KEY(id),
+	FOREIGN KEY(origin_issue_id) REFERENCES Issue(id),
+	FOREIGN KEY(target_issue_id) REFERENCES Issue(id)
 );
 
 -- contains relationships written_in, first_issue, last_issue, publ_type, country and published_by
 CREATE TABLE Series(
-	series_id INTEGER,
-	series_name CHAR(239),
+	id INTEGER,
+	name CHAR(239),
 	format CHAR(200),
 	year_began INTEGER,
 	year_ended INTEGER,
@@ -105,19 +106,19 @@ CREATE TABLE Series(
 	binding CHAR(90),
 	publishing_format CHAR(93),
 	publication_type_id INTEGER,
-	PRIMARY KEY(series_id),
-	FOREIGN KEY(first_issue_id) REFERENCES Issue(issue_id),
-	FOREIGN KEY(last_issue_id) REFERENCES Issue(issue_id),
-	FOREIGN KEY(publisher_id) REFERENCES Publisher,
-	FOREIGN KEY(country_id) REFERENCES Country,
-	FOREIGN KEY(language_id) REFERENCES Language,
-	FOREIGN KEY(publication_type_id) REFERENCES Series_Publication_Type
+	PRIMARY KEY(id),
+	FOREIGN KEY(first_issue_id) REFERENCES Issue(id),
+	FOREIGN KEY(last_issue_id) REFERENCES Issue(id),
+	FOREIGN KEY(publisher_id) REFERENCES Publisher(id),
+	FOREIGN KEY(country_id) REFERENCES Country(id),
+	FOREIGN KEY(language_id) REFERENCES Language(id),
+	FOREIGN KEY(publication_type_id) REFERENCES Series_Publication_Type(id)
 );
 
 -- contains relationships series and indicia_publ
 CREATE TABLE Issue(
-	issue_id  INTEGER,
-	issue_number INTEGER,
+	id  INTEGER,
+	number INTEGER,
 	series_id INTEGER NOT NULL,
 	indicia_publisher_id INTEGER,
 	publication_date DATE,
@@ -132,16 +133,16 @@ CREATE TABLE Issue(
 	title CHAR(111),
 	on_sale_date DATE,
 	rating CHAR(118),
-	PRIMARY KEY(issue_id),
-	FOREIGN KEY(series_id) REFERENCES Series,
-	FOREIGN KEY(indicia_publisher_id) REFERENCES Indicia_Publisher
+	PRIMARY KEY(id),
+	FOREIGN KEY(series_id) REFERENCES Series(id),
+	FOREIGN KEY(indicia_publisher_id) REFERENCES Indicia_Publisher(id)
 );
 
 -- contains relationships issue and story_type
 CREATE TABLE Story(
-	story_id INTEGER,
-	story_title CHAR(19727),
-	story_feature CHAR(423),
+	id INTEGER,
+	title CHAR(19727),
+	feature CHAR(423),
 	issue_id INTEGER NOT NULL,
 	script CHAR(1166),
 	pencils CHAR(1702),
@@ -155,7 +156,7 @@ CREATE TABLE Story(
 	reprint_notes CHAR(3562),
 	notes CHAR(11486),
 	type_id INTEGER NOT NULL,
-	PRIMARY KEY(story_id),
-	FOREIGN KEY(issue_id) REFERENCES Issue,
-	FOREIGN KEY(type_id) REFERENCES Story_Type(story_type_id)
+	PRIMARY KEY(id),
+	FOREIGN KEY(issue_id) REFERENCES Issue(id),
+	FOREIGN KEY(type_id) REFERENCES Story_Type(id)
 );
