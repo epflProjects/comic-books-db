@@ -117,7 +117,7 @@ CREATE TABLE Series(
 
 -- contains relationships series and indicia_publ
 CREATE TABLE Issue(
-	id  INTEGER NOT NULL, -- constraint assumption
+	id INTEGER NOT NULL, -- constraint assumption
 	number INTEGER NOT NULL, -- constraint assumption
 	series_id INTEGER NOT NULL, -- relation constraint (total participation)
 	indicia_publisher_id INTEGER, -- relation constraint (partial participation)
