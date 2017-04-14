@@ -1,0 +1,7 @@
+/**
+ * MAIN
+ */
+
+$(document).ready(function () {
+
+});
