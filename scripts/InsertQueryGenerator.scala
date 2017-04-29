@@ -22,9 +22,9 @@ object InsertQueryGenerator {
 		val tableNameCSV = args(0).split('.')(0)
 		val tableAttributes = TableAttributeParser(Source.fromFile(args(1)).getLines(), tableNameCSV)
 		tableAttributes match {
-			case None =>println("[ERROR] wrong format fot the csv filename arg");return
+			case None => return
 			case Some(t) => 
-				val preambule = "INSERT INTO" + tableAttributes.getName + "\n"	
+				val preambule = "INSERT INTO" + t.getName + "\n"	
 		}
 
 
@@ -35,14 +35,28 @@ object InsertQueryGenerator {
 object TableAttributeParser {
 	//will give back a list of all the attributes from the table, with the first element being the table name itself.
 	//the tableName given as an argument shall be the csv name (which most of time doesn't match case according the name of the tables in this file)
-	def apply(lines: Iterator[String], tableName: String): Option[TableInformations] =
+	def apply(lines: Iterator[String], tableName: String): Option[TableInformations] = {
 		tableExtractor(lines).find(x => x.getName.toLowerCase equals tableName)
-
-	def def tableExtractor(lines: Iterator[String]): List[TableInformations] = {
-		val tables = new ListBuffer
-		//WIP
-
 	}
+
+	def tableExtractor(lines: Iterator[String]): List[TableInformations] = {
+		val tables = new ListBuffer[TableInformations]
+		while(lines.hasNext){
+			val createTableStr = "CREATE TABLE "
+			val currLine = lines.next()
+			if(currLine.take(createTableStr.length) equals createTableStr){
+				val createdTable = tableParser(lines, currLine)
+				createdTable match {
+					case Some(t) => tables.append(t)
+					case None => println("[ERROR] error in parsing a table"); return Nil
+				}
+			}
+
+		}
+		tables.toList
+	}
+
+	def tableParser(lines: Iterator[String], firstLine: String): Option[TableInformations] = ???
 
 }
 
@@ -50,6 +64,6 @@ class TableInformations(name: String){
 	private var attributes: ListBuffer[(String, Boolean)] = new ListBuffer
 	def addAttribute(attrName: String) = attributes.append((attrName, false))
 	def addAttribute(attrName: String, isNumber: Boolean) = attributes.append((attrName, isNumber))
-	def getAttributes = attributes.map( (a,b) => ???).toList
+	def getAttributes: List[String] = attributes.toList.map( t => t._1)
 	def getName = name
 }
