@@ -115,11 +115,9 @@ CREATE TABLE Issue(
 	title VARCHAR,
 	on_sale_date DATE,
 	rating VARCHAR,
-	reprint_origin_id INTEGER,
 	PRIMARY KEY(id),
 	FOREIGN KEY(series_id) REFERENCES Series(id),
-	FOREIGN KEY(indicia_publisher_id) REFERENCES Indicia_Publisher(id),
-	FOREIGN KEY(reprint_origin_id) REFERENCES Issue(id)
+	FOREIGN KEY(indicia_publisher_id) REFERENCES Indicia_Publisher(id)
 );
 
 -- contains relations issue, story_type and story_reprint
@@ -135,11 +133,9 @@ CREATE TABLE Story(
 	reprint_notes TEXT,
 	notes TEXT,
 	type_id INTEGER NOT NULL, -- relation constraint (total participation)
-	reprint_origin_id INTEGER,
 	PRIMARY KEY(id),
 	FOREIGN KEY(issue_id) REFERENCES Issue(id),
 	FOREIGN KEY(type_id) REFERENCES Story_Type(id),
-	FOREIGN KEY(reprint_origin_id) REFERENCES Story_Type(id)
 );
 
 CREATE TABLE Artist(
@@ -157,7 +153,7 @@ CREATE TABLE Character(
 -- RELATIONS
 
 -- represents relation script
-CREATE TABLE Script(
+CREATE TABLE script(
 	story_id INTEGER NOT NULL,
 	artist_id INTEGER NOT NULL,
 	PRIMARY KEY(story_id, artist_id),
@@ -166,7 +162,7 @@ CREATE TABLE Script(
 );
 
 -- represents relation pencils
-CREATE TABLE Pencils(
+CREATE TABLE pencils(
 	story_id INTEGER NOT NULL,
 	artist_id INTEGER NOT NULL,
 	PRIMARY KEY(story_id, artist_id),
@@ -175,7 +171,7 @@ CREATE TABLE Pencils(
 );
 
 -- represents relation inks
-CREATE TABLE Inks(
+CREATE TABLE inks(
 	story_id INTEGER NOT NULL,
 	artist_id INTEGER NOT NULL,
 	PRIMARY KEY(story_id, artist_id),
@@ -184,7 +180,7 @@ CREATE TABLE Inks(
 );
 
 -- represents relation colors
-CREATE TABLE Colors(
+CREATE TABLE colors(
 	story_id INTEGER NOT NULL,
 	artist_id INTEGER NOT NULL,
 	PRIMARY KEY(story_id, artist_id),
@@ -193,10 +189,30 @@ CREATE TABLE Colors(
 );
 
 -- represents relation characters
-CREATE TABLE Characters(
+CREATE TABLE characters(
 	story_id INTEGER NOT NULL,
 	character_id INTEGER NOT NULL,
 	PRIMARY KEY(story_id, character_id),
 	FOREIGN KEY(story_id) REFERENCES Story(id),
 	FOREIGN KEY(character_id) REFERENCES Character(id)
+);
+
+-- represents relation issue_reprint
+CREATE TABLE issue_reprint(
+	id INTEGER NOT NULL,
+	origin_issue_id INTEGER NOT NULL, -- relation constraint (total participation)
+	target_issue_id INTEGER NOT NULL, -- relation constraint (total participation)
+	PRIMARY KEY(id),
+	FOREIGN KEY(origin_issue_id) REFERENCES Issue(id),
+	FOREIGN KEY(target_issue_id) REFERENCES Issue(id)
+);
+
+-- represents relation story_reprint
+CREATE TABLE story_reprint(
+	id INTEGER NOT NULL,
+	origin_id INTEGER NOT NULL, -- relation constraint (total participation)
+	target_id INTEGER NOT NULL, -- relation constraint (total participation)
+	PRIMARY KEY(id),
+	FOREIGN KEY(origin_id) REFERENCES Story(id),
+	FOREIGN KEY (target_id) REFERENCES Story(id)
 );
