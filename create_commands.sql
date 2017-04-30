@@ -2,14 +2,14 @@
 
 CREATE TABLE Story_Type(
 	id INTEGER NOT NULL,
-	name VARCHAR NOT NULL, -- constraint assumption
+	name VARCHAR(239) NOT NULL, -- constraint assumption
 	PRIMARY KEY(id)
 );
 
 CREATE TABLE Language(
 	id INTEGER NOT NULL,
 	code CHAR(4) NOT NULL, -- constraint assumption
-	name VARCHAR NOT NULL, -- constraint assumption
+	name VARCHAR(124) NOT NULL, -- constraint assumption
 	PRIMARY KEY(id)
 );
 
@@ -22,12 +22,12 @@ CREATE TABLE Series_Publication_Type(
 -- contains relation publ_country
 CREATE TABLE Publisher(
 	id INTEGER NOT NULL,
-	name VARCHAR NOT NULL, -- constraint assumption
+	name VARCHAR(124) NOT NULL, -- constraint assumption
 	country_id INTEGER NOT NULL, -- relation constraint (total participation)
 	year_began INTEGER,
 	year_ended INTEGER,
 	notes TEXT,
-	url VARCHAR,
+	url VARCHAR(152),
 	PRIMARY KEY(id),
 	FOREIGN KEY(country_id) REFERENCES Country(id)
 );
@@ -35,11 +35,11 @@ CREATE TABLE Publisher(
 -- contains relation bg_publisher
 CREATE TABLE Brand_Group(
 	id INTEGER NOT NULL,
-	name VARCHAR NOT NULL, -- constraint assumption
+	name VARCHAR(94) NOT NULL, -- constraint assumption
 	year_began INTEGER,
 	year_ended INTEGER,
 	notes TEXT,
-	url VARCHAR,
+	url VARCHAR(152),
 	publisher_id INTEGER NOT NULL, -- relation constraint (total participation)
 	PRIMARY KEY(id),
 	FOREIGN KEY(publisher_id) REFERENCES Publisher(id)
@@ -48,14 +48,14 @@ CREATE TABLE Brand_Group(
 -- contains relations ind_country and ip_publisher
 CREATE TABLE Indicia_Publisher(
 	id INTEGER NOT NULL,
-	name VARCHAR NOT NULL, -- constraint assumption
+	name VARCHAR(124) NOT NULL, -- constraint assumption
 	publisher_id INTEGER NOT NULL, -- relation constraint (total participation)
 	country_id INTEGER NOT NULL, -- relation constraint (total participation)
 	year_began INTEGER,
 	year_ended INTEGER,
 	is_surrogate BIT NOT NULL, -- constraint assumption -- 0 or 1 value
 	notes TEXT,
-	url VARCHAR,
+	url VARCHAR(152),
 	PRIMARY KEY(id),
 	FOREIGN KEY(country_id) REFERENCES Country(id),
 	FOREIGN KEY(publisher_id) REFERENCES Publisher(id)
@@ -64,29 +64,29 @@ CREATE TABLE Indicia_Publisher(
 CREATE TABLE Country(
 	id INTEGER NOT NULL,
 	code CHAR(4) NOT NULL, -- constraint assumption
-	name VARCHAR NOT NULL, -- constraint assumption
+	name VARCHAR(122) NOT NULL, -- constraint assumption
 	PRIMARY KEY(id)
 );
 
 -- contains relations written_in, first_issue, last_issue, publ_type, country and published_by
 CREATE TABLE Series(
 	id INTEGER NOT NULL,
-	name VARCHAR NOT NULL, -- constraint assumption
-	format VARCHAR,
+	name VARCHAR(239) NOT NULL, -- constraint assumption
+	format VARCHAR(200),
 	year_began DATE NOT NULL, -- constraint assumption
 	year_ended DATE,
-	publication_dates VARCHAR,
+	publication_dates VARCHAR(103),
 	first_issue_id INTEGER NOT NULL, -- relation constraint (total participation)
 	last_issue_id INTEGER NOT NULL, -- relation constraint (total participation)
 	publisher_id INTEGER NOT NULL, -- relation constraint (total participation)
 	country_id INTEGER NOT NULL, -- relation constraint (total participation)
 	language_id INTEGER NOT NULL, -- relation constraint (total participation)
 	notes TEXT,
-	color VARCHAR,
-	dimensions VARCHAR,
-	paper_stock VARCHAR,
-	binding VARCHAR,
-	publishing_format VARCHAR,
+	color VARCHAR(200),
+	dimensions VARCHAR(709),
+	paper_stock VARCHAR(140),
+	binding VARCHAR(90),
+	publishing_format VARCHAR(93),
 	publication_type_id INTEGER, -- relation constraint (partial participation)
 	PRIMARY KEY(id),
 	FOREIGN KEY(first_issue_id) REFERENCES Issue(id),
@@ -100,21 +100,21 @@ CREATE TABLE Series(
 -- contains relations series, indicia_publ and issue_reprint
 CREATE TABLE Issue(
 	id INTEGER NOT NULL,
-	number VARCHAR,
+	number VARCHAR(18),
 	series_id INTEGER NOT NULL, -- relation constraint (total participation)
 	indicia_publisher_id INTEGER, -- relation constraint (partial participation)
 	publication_date DATE,
-	price VARCHAR,
+	price VARCHAR(58),
 	page_count INTEGER,
-	indicia_frequency VARCHAR,
+	indicia_frequency VARCHAR(111),
 	editing TEXT,
 	notes TEXT,
-	isbn VARCHAR,
+	isbn VARCHAR(28),
 	valid_isbn CHAR(13),
-	barcode VARCHAR,
-	title VARCHAR,
+	barcode VARCHAR(18),
+	title VARCHAR(67),
 	on_sale_date DATE,
-	rating VARCHAR,
+	rating VARCHAR(50),
 	PRIMARY KEY(id),
 	FOREIGN KEY(series_id) REFERENCES Series(id),
 	FOREIGN KEY(indicia_publisher_id) REFERENCES Indicia_Publisher(id)
@@ -123,12 +123,12 @@ CREATE TABLE Issue(
 -- contains relations issue, story_type and story_reprint
 CREATE TABLE Story(
 	id INTEGER NOT NULL,
-	title VARCHAR,
-	feature VARCHAR,
+	title VARCHAR(4802),
+	feature VARCHAR(211),
 	issue_id INTEGER NOT NULL, -- relation constraint (total participation)
-	letters VARCHAR,
-	editing VARCHAR,
-	genre VARCHAR,
+	letters VARCHAR(49),
+	editing VARCHAR(664),
+	genre VARCHAR(57),
 	synopsis TEXT,
 	reprint_notes TEXT,
 	notes TEXT,
@@ -140,13 +140,13 @@ CREATE TABLE Story(
 
 CREATE TABLE Artist(
 	id INTEGER NOT NULL,
-	name VARCHAR NOT NULL,
+	name VARCHAR(37) NOT NULL,
 	PRIMARY KEY(id)
 );
 
 CREATE TABLE Character(
 	id INTEGER NOT NULL,
-	name VARCHAR NOT NULL,
+	name VARCHAR(122) NOT NULL,
 	PRIMARY KEY(id)
 );
 
