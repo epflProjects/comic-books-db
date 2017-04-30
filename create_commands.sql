@@ -19,6 +19,13 @@ CREATE TABLE Series_Publication_Type(
 	PRIMARY KEY(id)
 );
 
+CREATE TABLE Country(
+	id INTEGER NOT NULL,
+	code CHAR(4) NOT NULL, -- constraint assumption
+	name VARCHAR(122) NOT NULL, -- constraint assumption
+	PRIMARY KEY(id)
+);
+
 -- contains relation publ_country
 CREATE TABLE Publisher(
 	id INTEGER NOT NULL,
@@ -61,12 +68,6 @@ CREATE TABLE Indicia_Publisher(
 	FOREIGN KEY(publisher_id) REFERENCES Publisher(id)
 );
 
-CREATE TABLE Country(
-	id INTEGER NOT NULL,
-	code CHAR(4) NOT NULL, -- constraint assumption
-	name VARCHAR(122) NOT NULL, -- constraint assumption
-	PRIMARY KEY(id)
-);
 
 -- contains relations written_in, first_issue, last_issue, publ_type, country and published_by
 CREATE TABLE Series(
@@ -144,7 +145,7 @@ CREATE TABLE Artist(
 	PRIMARY KEY(id)
 );
 
-CREATE TABLE Character(
+CREATE TABLE Character_(
 	id INTEGER NOT NULL,
 	name VARCHAR(122) NOT NULL,
 	PRIMARY KEY(id)
@@ -194,7 +195,7 @@ CREATE TABLE characters(
 	character_id INTEGER NOT NULL,
 	PRIMARY KEY(story_id, character_id),
 	FOREIGN KEY(story_id) REFERENCES Story(id),
-	FOREIGN KEY(character_id) REFERENCES Character(id)
+	FOREIGN KEY(character_id) REFERENCES Character_(id)
 );
 
 -- represents relation issue_reprint
@@ -214,5 +215,5 @@ CREATE TABLE story_reprint(
 	target_id INTEGER NOT NULL, -- relation constraint (total participation)
 	PRIMARY KEY(id),
 	FOREIGN KEY(origin_id) REFERENCES Story(id),
-	FOREIGN KEY (target_id) REFERENCES Story(id)
+	FOREIGN KEY(target_id) REFERENCES Story(id)
 );
