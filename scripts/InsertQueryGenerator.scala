@@ -119,7 +119,7 @@ object TableAttributeParser {
 					}
 					val attrName = elements(0).drop(1)//need drop(1) to remove the first tabulation
 					if(!(attrName == "PRIMARY" || attrName == "FOREIGN" || attrName == "--")){
-						tabInfo.addAttribute(attrName, isNumber(elements(1)))
+						tabInfo.addAttribute(attrName, typeTranslate(elements(1)))
 					}
 				}	
 			}
@@ -127,10 +127,10 @@ object TableAttributeParser {
 		Some(tabInfo)
 	}
 
-	def isNumber(attrType: String) = attrType.take(3) match {
-		case "INT"  => true
-		case "BIT" => true
-		case _ => false
+	def typeTranslate(attrType: String) = attrType.take(3) match {
+		case "INT" | "BIT" => Numb
+		case "DAT" => Date
+		case _ => Other
 	}
 }
 
@@ -145,27 +145,39 @@ object CSVParser{
 			val toPrint = elements.zip(numberOrder).foldLeft("\t(")(
 					(str, t) => {
 						val cleanedData = t._1.replaceAll("\"", "")
+						val qte = quoteOrNot(t._2)
 						str + (if(cleanedData == "NULL") "NULL"
-						else if(t._2) cleanedData else "\""+cleanedData+"\"" ) + ", "
+						else qte + cleanedData + qte) + ", "
 					}
 				)
 			pw.write(toPrint.dropRight(2) + (if(lines.hasNext) "),\n" else ");"))
 		}
 		return true
 	}
+
+	def quoteOrNot(tpe : SQLtype): String = tpe match {
+		case Numb => ""
+		case Date => "\'"
+		case _ => ""
+	}
 }
 
+sealed abstract class SQLtype
+case object Numb extends SQLtype
+case object Date extends SQLtype
+case object Other extends SQLtype
+
 class TableInformations(name: String){
-	private var attributes: ListBuffer[(String, Boolean)] = new ListBuffer
-	def addAttribute(attrName: String) = attributes.append((attrName, false))
-	def addAttribute(attrName: String, isNumber: Boolean) = attributes.append((attrName, isNumber))
-	def getAttributes: List[(String, Boolean)] = attributes.toList
+	private var attributes: ListBuffer[(String, SQLtype)] = new ListBuffer
+	def addAttribute(attrName: String) = attributes.append((attrName, Other))
+	def addAttribute(attrName: String, tpe: SQLtype) = attributes.append((attrName, tpe))
+	def getAttributes: List[(String, SQLtype)] = attributes.toList
 	def getAttributesName: List[String] = getAttributes.map( t => t._1)
 	def getName = name
 	//for debugging purposes
 	override def toString = {
 		"Table : "+getName+"\n"+ getAttributes.foldLeft(new String)(
-			(str,attr) => str + "\t"+attr._1+(if(attr._2)" !number!"else"")+"\n"
+			(str,attr) => str + "\t"+attr._1+"\n"
 		)
 	}
 
