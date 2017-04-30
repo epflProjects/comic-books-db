@@ -90,8 +90,10 @@ CREATE TABLE Series(
 	publishing_format VARCHAR(93),
 	publication_type_id INTEGER, -- relation constraint (partial participation)
 	PRIMARY KEY(id),
-	--FOREIGN KEY(first_issue_id) REFERENCES Issue(id),
-	--FOREIGN KEY(last_issue_id) REFERENCES Issue(id),
+	-- !!! for when plotting queries to create table, thos two lines must be set to comments.
+	FOREIGN KEY(first_issue_id) REFERENCES Issue(id),
+	FOREIGN KEY(last_issue_id) REFERENCES Issue(id),
+	-- !!!
 	FOREIGN KEY(publisher_id) REFERENCES Publisher(id),
 	FOREIGN KEY(country_id) REFERENCES Country(id),
 	FOREIGN KEY(language_id) REFERENCES Language(id),
