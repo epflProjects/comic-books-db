@@ -6,7 +6,7 @@ import scala.collection.mutable._
 object InsertQueryGenerator {
 	def main(args: Array[String]): Unit = {
 		
-		if(args.length < 2){
+		/*if(args.length < 2){
 			println("[ERROR] this program expect two arguments : \n"+
 				"\tFirst the filnamne of the csv file to parse"+
 				"\tSecond the filename of the create query table file")
@@ -25,9 +25,10 @@ object InsertQueryGenerator {
 			case None => return
 			case Some(t) => 
 				val preambule = "INSERT INTO" + t.getName + "\n"	
-		}
+		}*/
 
-
+		val tables = TableAttributeParser.tableExtractor(Source.fromFile(args(0)).getLines()) 
+		tables map println
 	}
 }
 
@@ -41,22 +42,64 @@ object TableAttributeParser {
 
 	def tableExtractor(lines: Iterator[String]): List[TableInformations] = {
 		val tables = new ListBuffer[TableInformations]
+		val createTableStr = "CREATE TABLE "
 		while(lines.hasNext){
-			val createTableStr = "CREATE TABLE "
 			val currLine = lines.next()
 			if(currLine.take(createTableStr.length) equals createTableStr){
 				val createdTable = tableParser(lines, currLine)
 				createdTable match {
 					case Some(t) => tables.append(t)
-					case None => println("[ERROR] error in parsing a table"); return Nil
+					case None => println("[ERROR] error in parsing a table,"+
+									"an end of table was probably misdeclared "+
+									"of misdetected"); return tables.toList
 				}
 			}
-
 		}
 		tables.toList
 	}
+	/**
+	*	Takes the first line of a table, the iterator on the rest of the lines,
+	*	And take care of parsing the line following the first as TableInformations.
+	*	Return Optionnally a TableInformation constructed. 
+	*	This method is not really robust entry-wise, you should always give 
+	*	a coherent and well written SQL queries of creating table in entry
+	*	Format of a Table  accepted (in a regex like description): 
+			CREATE TABLE <tableName>(
+				(<attributeName> <attributeType> <attributeNullitude>?,) *
+				(<PrimaryKeyDeclaration> | <ForeignKeyDeclaration>,?) *
+			);
+		The first line arg should be without "CREATE TABLE "
+	*/
+	def tableParser(lines: Iterator[String], firstLine: String): Option[TableInformations] = {
+		val tableName = firstLine.dropRight(1)
+		val tabInfo = new TableInformations(tableName)
+		var reachedEndOfTable = false
+		while(lines.hasNext || !reachedEndOfTable){
+			val currLine = lines.next()
+			if(currLine.take(2) == ");") reachedEndOfTable = true
+			else{	
+				val elements = currLine.split(' ')
+				if(elements.length >= 2){
+					val attrName = elements(0)
+					if(attrName == "CREATE"){
+						//for some reason the table paser did not stop at the correct end 
+						//of the table and started parsing the following table
+						return None
+					}
+					if(attrName != "PRIMARY" && attrName != "FOREIGN" && attrName != "--"){
+						tabInfo.addAttribute(attrName, isNumber(elements(1)))
+					}
+				}	
+			}
+		}
+		Some(tabInfo)
+	}
 
-	def tableParser(lines: Iterator[String], firstLine: String): Option[TableInformations] = ???
+	def isNumber(attrType: String) = attrType.take(3) match {
+		case "INT"  => true
+		case "BIT" => true
+		case _ => false
+	}
 
 }
 
@@ -64,6 +107,14 @@ class TableInformations(name: String){
 	private var attributes: ListBuffer[(String, Boolean)] = new ListBuffer
 	def addAttribute(attrName: String) = attributes.append((attrName, false))
 	def addAttribute(attrName: String, isNumber: Boolean) = attributes.append((attrName, isNumber))
-	def getAttributes: List[String] = attributes.toList.map( t => t._1)
+	def getAttributes: List[(String, Boolean)] = attributes.toList
+	def getAttributesName: List[String] = getAttributes.map( t => t._1)
 	def getName = name
+	//for debugging purposes
+	override def toString = {
+		"Table : "+getName+"\n"+ getAttributes.foldLeft(new String)(
+			(str,attr) => str + "\t"+attr._1+(if(attr._2)" number"else"")+"\n"
+		)
+	}
+
 }
