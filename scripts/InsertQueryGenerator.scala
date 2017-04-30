@@ -1,34 +1,58 @@
+#!/usr/bin/env scala
+
 import scala.io.Source
+import java.io._
 import scala.collection.mutable._
 
-//Note, even though its scala, this file is a script, not a code to be compiled.
-//to run it simply type "scala InsertQueryGenerator.scala" (followed of course by the args you want)
+/*Note, even though its scala, this file is a script, not a code to be compiled.
+ *		Thanks to shebang magic, you just need to give this script executable rights
+ *		("chmod a+x InsertQueryGenerator.scala" in your terminal) and then you can execute it
+ *		as any shell scripts you would use. (if too lazy to give exec rights, 
+ *		use scala command utilitary instead.)
+ * usage : args 1 == filename of the csv file to parse, 
+ *		   args 2 == filename of the create query table file
+ */
 
-//usage : args 1 == filename of the csv file to parse, 
-//		  args 2 == filename of the create query table file
-
-//Debugging the table parser
-/*val tables = TableAttributeParser.tableExtractor(Source.fromFile(args(0)).getLines()) 
-tables map println*/
 
 if(args.length < 2){
 	println("[ERROR] this program expect two arguments : \n"+
-		"\tFirst the filnamne of the csv file to parse\n"+
-		"\tSecond the filename of the create query table file")
+		"\t- First the filenamne of the csv file to parse\n"+
+		"\t- Second the filename of the file containing \n\tthe create table queries.")
 }else{
-	val fileAndExtensions = args(0).split('.')
+	//done to correctly get the filename (without dirs) and its extension. I use java.io because i fucking implemented it.
+	val absoPaths = new File(args(0)).getAbsolutePath.split('/')
+	val fileAndExtensions = absoPaths(absoPaths.length-1).split('.')
 	if(fileAndExtensions.length != 2 || fileAndExtensions(1) != "csv"){
 		println("[ERROR] wrong format fot the csv filename arg")
 	}else{
-		val tableNameCSV = args(0).split('.')(0)
+		//first making the directory where the SQL commands to insert data will be stocked
+		val dataQueries = "../insert_queries/"
+		val insertQueriesDir = new File(dataQueries)
+		insertQueriesDir.mkdir()
+
+		//then fetching the table info in its creation query
+		val tableNameCSV = fileAndExtensions(0)
 		val tableAttributes = TableAttributeParser(Source.fromFile(args(1)).getLines(), tableNameCSV)
 		tableAttributes match {
 			case None => println("[ERROR] Could not find the table you're looking for in the create table queries")
 			case Some(t) => 
-				val preambule = "INSERT INTO" + t.getName + "\n"+
-								t.getAttributesName.foldLeft("\t(")(
-									(str, attr) => str + attr + ", "
-								).dropRight(2)+ ")\nVALUES\n"
+				//checking the csv as the correct columns name and number as the table info we fetched
+				val csvLines = Source.fromFile(args(0)).getLines()
+				val colNames = csvLines.next().split(',').map(_.trim)
+				val attrNames = t.getAttributesName
+				if(colNames.length != attrNames.length){
+					println(s"[ERROR] the csv file has $colNames.length columns when its table declaration has $attrNames.length")
+				}else{
+					colNames.zip(attrNames).map(t => if(t._1 != t._2){
+						println(s"[WARNING] The columns names don't match exactly the attribute names : found $t._1 expected $t._2")
+						})
+
+					//now the checks are done, we are going to create the file, and writing to it.
+					val preambule = "INSERT INTO " + t.getName + "\n"+
+									t.getAttributesName.foldLeft("\t(")(
+										(str, attr) => str + attr + ", "
+									).dropRight(2)+ ")\nVALUES\n"
+				}
 		}
 	}
 }
@@ -101,7 +125,10 @@ object TableAttributeParser {
 		case "BIT" => true
 		case _ => false
 	}
+}
 
+object CSVParser{
+	def apply(lines: Iterator[String], tabInfo: TableInformations) = ???
 }
 
 class TableInformations(name: String){
