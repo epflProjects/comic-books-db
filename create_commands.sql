@@ -90,8 +90,8 @@ CREATE TABLE Series(
 	publishing_format VARCHAR(93),
 	publication_type_id INTEGER, -- relation constraint (partial participation)
 	PRIMARY KEY(id),
-	FOREIGN KEY(first_issue_id) REFERENCES Issue(id),
-	FOREIGN KEY(last_issue_id) REFERENCES Issue(id),
+	--FOREIGN KEY(first_issue_id) REFERENCES Issue(id),
+	--FOREIGN KEY(last_issue_id) REFERENCES Issue(id),
 	FOREIGN KEY(publisher_id) REFERENCES Publisher(id),
 	FOREIGN KEY(country_id) REFERENCES Country(id),
 	FOREIGN KEY(language_id) REFERENCES Language(id),
@@ -121,6 +121,11 @@ CREATE TABLE Issue(
 	FOREIGN KEY(indicia_publisher_id) REFERENCES Indicia_Publisher(id)
 );
 
+alter table Series add constraint first_issue_id foreign key(first_issue_id) references Issue(id);
+
+alter table Series add constraint last_issue_id foreign key(last_issue_id) references Issue(id);
+
+
 -- contains relations issue, story_type and story_reprint
 CREATE TABLE Story(
 	id INTEGER NOT NULL,
@@ -136,7 +141,7 @@ CREATE TABLE Story(
 	type_id INTEGER NOT NULL, -- relation constraint (total participation)
 	PRIMARY KEY(id),
 	FOREIGN KEY(issue_id) REFERENCES Issue(id),
-	FOREIGN KEY(type_id) REFERENCES Story_Type(id),
+	FOREIGN KEY(type_id) REFERENCES Story_Type(id)
 );
 
 CREATE TABLE Artist(
