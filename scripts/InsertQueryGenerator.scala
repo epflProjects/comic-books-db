@@ -3,40 +3,35 @@ import scala.collection.mutable._
 
 //Note, even though its scala, this file is a script, not a code to be compiled.
 //to run it simply type "scala InsertQueryGenerator.scala" (followed of course by the args you want)
+
 //usage : args 1 == filename of the csv file to parse, 
 //		  args 2 == filename of the create query table file
 
-/*object InsertQueryGenerator {
-	def main(args: Array[String]): Unit = {
-		
-		/*if(args.length < 2){
-			println("[ERROR] this program expect two arguments : \n"+
-				"\tFirst the filnamne of the csv file to parse"+
-				"\tSecond the filename of the create query table file")
-			return
-		}
+//Debugging the table parser
+/*val tables = TableAttributeParser.tableExtractor(Source.fromFile(args(0)).getLines()) 
+tables map println*/
 
-		val fileAndExtensions = args(0).split('.')
-		if(fileAndExtensions.length != 2 || fileAndExtensions(1) != "csv"){
-			println("[ERROR] wrong format fot the csv filename arg")
-			return
-		}
-
+if(args.length < 2){
+	println("[ERROR] this program expect two arguments : \n"+
+		"\tFirst the filnamne of the csv file to parse\n"+
+		"\tSecond the filename of the create query table file")
+}else{
+	val fileAndExtensions = args(0).split('.')
+	if(fileAndExtensions.length != 2 || fileAndExtensions(1) != "csv"){
+		println("[ERROR] wrong format fot the csv filename arg")
+	}else{
 		val tableNameCSV = args(0).split('.')(0)
 		val tableAttributes = TableAttributeParser(Source.fromFile(args(1)).getLines(), tableNameCSV)
 		tableAttributes match {
-			case None => return
+			case None => println("[ERROR] Could not find the table you're looking for in the create table queries")
 			case Some(t) => 
-				val preambule = "INSERT INTO" + t.getName + "\n"	
-		}*/
-
+				val preambule = "INSERT INTO" + t.getName + "\n"+
+								t.getAttributesName.foldLeft("\t(")(
+									(str, attr) => str + attr + ", "
+								).dropRight(2)+ ")\nVALUES\n"
+		}
 	}
-}*/
-
-//Debugging the table parser
-val tables = TableAttributeParser.tableExtractor(Source.fromFile(args(0)).getLines()) 
-tables map println
-
+}
 
 object TableAttributeParser {
 	//will give back a list of all the attributes from the table, with the first element being the table name itself.
