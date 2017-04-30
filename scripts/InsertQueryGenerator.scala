@@ -13,7 +13,6 @@ import scala.collection.mutable._
  *		   args 2 == filename of the create query table file
  */
 
-
 if(args.length < 2){
 	println("[ERROR] this program expect two arguments : \n"+
 		"\t- First the filenamne of the csv file to parse\n"+
@@ -23,7 +22,7 @@ if(args.length < 2){
 	val absoPaths = new File(args(0)).getAbsolutePath.split('/')
 	val fileAndExtensions = absoPaths(absoPaths.length-1).split('.')
 	if(fileAndExtensions.length != 2 || fileAndExtensions(1) != "csv"){
-		println("[ERROR] wrong format fot the csv filename arg")
+		println("[ERROR] Wrong format fot the csv filename arg")
 	}else{
 		//first making the directory where the SQL commands to insert data will be stocked
 		val dataQueries = "../insert_queries/"
@@ -41,10 +40,10 @@ if(args.length < 2){
 				val colNames = csvLines.next().split(',').map(_.trim)
 				val attrNames = t.getAttributesName
 				if(colNames.length != attrNames.length){
-					println(s"[ERROR] the csv file has $colNames.length columns when its table declaration has $attrNames.length")
+					println(s"[ERROR] the csv file has ${colNames.length} columns when its table declaration has ${attrNames.length}")
 				}else{
 					colNames.zip(attrNames).map(t => if(t._1 != t._2){
-						println(s"[WARNING] The columns names don't match exactly the attribute names : found $t._1 expected $t._2")
+						println(s"[WARNING] The columns names don't match exactly the attribute names : found ${t._1} expected ${t._2}")
 						})
 
 					//now the checks are done, we are going to create the file, and writing to it.
@@ -52,6 +51,14 @@ if(args.length < 2){
 									t.getAttributesName.foldLeft("\t(")(
 										(str, attr) => str + attr + ", "
 									).dropRight(2)+ ")\nVALUES\n"
+					val pw = new PrintWriter(new File(dataQueries + t.getName+ "_insert_data.sql"))
+					pw.write(preambule)
+					if(CSVParser(csvLines, t, pw)){
+						println(s"[SUCCESS] ${t.getName} was succesfully converted into a SQL insert query")
+					}else{
+						println(s"[ERROR] for some reasons, ${t.getName} could not be converted. Please check the file produced and the script")
+					}
+					pw.close()
 				}
 		}
 	}
@@ -128,7 +135,24 @@ object TableAttributeParser {
 }
 
 object CSVParser{
-	def apply(lines: Iterator[String], tabInfo: TableInformations) = ???
+	//will print the data from the csv in the pw (already opened) into SQL values. 
+	//the boolean returned tells if something wrong happened or not.
+	def apply(lines: Iterator[String], tabInfo: TableInformations, pw: PrintWriter): Boolean = {
+		val numberOrder = tabInfo.getAttributes.map(t => t._2)
+		while(lines.hasNext){
+			val l = lines.next()
+			val elements = l.split(',').map(_.trim)
+			val toPrint = elements.zip(numberOrder).foldLeft("\t(")(
+					(str, t) => {
+						val cleanedData = t._1.replaceAll("\"", "")
+						str + (if(cleanedData == "NULL") "NULL"
+						else if(t._2) cleanedData else "\""+cleanedData+"\"" ) + ", "
+					}
+				)
+			pw.write(toPrint.dropRight(2) + (if(lines.hasNext) "),\n" else ");"))
+		}
+		return true
+	}
 }
 
 class TableInformations(name: String){
