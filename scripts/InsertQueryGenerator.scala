@@ -1,9 +1,12 @@
 import scala.io.Source
 import scala.collection.mutable._
 
+//Note, even though its scala, this file is a script, not a code to be compiled.
+//to run it simply type "scala InsertQueryGenerator.scala" (followed of course by the args you want)
 //usage : args 1 == filename of the csv file to parse, 
 //		  args 2 == filename of the create query table file
-object InsertQueryGenerator {
+
+/*object InsertQueryGenerator {
 	def main(args: Array[String]): Unit = {
 		
 		/*if(args.length < 2){
@@ -27,10 +30,12 @@ object InsertQueryGenerator {
 				val preambule = "INSERT INTO" + t.getName + "\n"	
 		}*/
 
-		val tables = TableAttributeParser.tableExtractor(Source.fromFile(args(0)).getLines()) 
-		tables map println
 	}
-}
+}*/
+
+//Debugging the table parser
+val tables = TableAttributeParser.tableExtractor(Source.fromFile(args(0)).getLines()) 
+tables map println
 
 
 object TableAttributeParser {
@@ -46,7 +51,8 @@ object TableAttributeParser {
 		while(lines.hasNext){
 			val currLine = lines.next()
 			if(currLine.take(createTableStr.length) equals createTableStr){
-				val createdTable = tableParser(lines, currLine)
+				val createdTable = tableParser(lines, currLine.drop(createTableStr.length))
+
 				createdTable match {
 					case Some(t) => tables.append(t)
 					case None => println("[ERROR] error in parsing a table,"+
@@ -74,19 +80,19 @@ object TableAttributeParser {
 		val tableName = firstLine.dropRight(1)
 		val tabInfo = new TableInformations(tableName)
 		var reachedEndOfTable = false
-		while(lines.hasNext || !reachedEndOfTable){
+		while(lines.hasNext && !reachedEndOfTable){
 			val currLine = lines.next()
 			if(currLine.take(2) == ");") reachedEndOfTable = true
 			else{	
 				val elements = currLine.split(' ')
 				if(elements.length >= 2){
-					val attrName = elements(0)
-					if(attrName == "CREATE"){
+					if(elements(0) == "CREATE"){
 						//for some reason the table paser did not stop at the correct end 
 						//of the table and started parsing the following table
 						return None
 					}
-					if(attrName != "PRIMARY" && attrName != "FOREIGN" && attrName != "--"){
+					val attrName = elements(0).drop(1)//need drop(1) to remove the first tabulation
+					if(!(attrName == "PRIMARY" || attrName == "FOREIGN" || attrName == "--")){
 						tabInfo.addAttribute(attrName, isNumber(elements(1)))
 					}
 				}	
@@ -113,7 +119,7 @@ class TableInformations(name: String){
 	//for debugging purposes
 	override def toString = {
 		"Table : "+getName+"\n"+ getAttributes.foldLeft(new String)(
-			(str,attr) => str + "\t"+attr._1+(if(attr._2)" number"else"")+"\n"
+			(str,attr) => str + "\t"+attr._1+(if(attr._2)" !number!"else"")+"\n"
 		)
 	}
 
