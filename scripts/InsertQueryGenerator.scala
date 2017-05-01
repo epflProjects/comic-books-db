@@ -142,16 +142,19 @@ object CSVParser{
 		while(lines.hasNext){
 			val l = lines.next()
 			val elements = l.split(',').map(_.trim)
-			val toPrint = elements.zip(numberOrder).foldLeft("\t(")(
-					(str, t) => {
-						//removing some unwanted pieces of data
-						val cleanedData = (t._1.replaceAll("\"", ""))//.replaceAll(";", "/")
-						val qte = quoteOrNot(t._2)
-						str + (if(cleanedData == "NULL") "NULL"
-						else qte + cleanedData + qte) + ", "
-					}
-				)
-			pw.write(toPrint.dropRight(2) + (if(lines.hasNext) "),\n" else ");"))
+			//if(elements.length == numberOrder.length) { //TODO : Judge if really necessary
+					val toPrint = elements.zip(numberOrder).foldLeft("\t(")(
+						(str, t) => {
+							//removing some unwanted pieces of data
+							var cleanedData = (t._1.replaceAll("\"", ""))//.replaceAll(";", "/")
+							//if(cleanedData.contains("The Who\'s Who verifies")){cleanedData = "NULL"} //TODO : Judge if really necessary
+							val qte = quoteOrNot(t._2)
+							str + (if(cleanedData == "NULL") "NULL"
+							else qte + cleanedData + qte) + ", "
+						}
+					)
+				pw.write(toPrint.dropRight(2) + (if(lines.hasNext) "),\n" else ");"))
+			//}
 		}
 		return true
 	}
