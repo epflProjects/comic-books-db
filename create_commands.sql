@@ -74,8 +74,8 @@ CREATE TABLE Series(
 	id INTEGER NOT NULL,
 	name VARCHAR(239) NOT NULL, -- constraint assumption
 	format VARCHAR(200),
-	year_began DATE NOT NULL, -- constraint assumption
-	year_ended DATE,
+	year_began INTEGER NOT NULL, -- constraint assumption
+	year_ended INTEGER,
 	publication_dates VARCHAR(103),
 	first_issue_id INTEGER NOT NULL, -- relation constraint (total participation)
 	last_issue_id INTEGER NOT NULL, -- relation constraint (total participation)
@@ -106,7 +106,7 @@ CREATE TABLE Issue(
 	number VARCHAR(18),
 	series_id INTEGER NOT NULL, -- relation constraint (total participation)
 	indicia_publisher_id INTEGER, -- relation constraint (partial participation)
-	publication_date DATE,
+	publication_date INTEGER,
 	price VARCHAR(58),
 	page_count INTEGER,
 	indicia_frequency VARCHAR(111),
@@ -116,7 +116,7 @@ CREATE TABLE Issue(
 	valid_isbn CHAR(13),
 	barcode VARCHAR(18),
 	title VARCHAR(67),
-	on_sale_date DATE,
+	on_sale_date INTEGER,
 	rating VARCHAR(50),
 	PRIMARY KEY(id),
 	FOREIGN KEY(series_id) REFERENCES Series(id),

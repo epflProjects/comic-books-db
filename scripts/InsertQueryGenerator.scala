@@ -144,7 +144,8 @@ object CSVParser{
 			val elements = l.split(',').map(_.trim)
 			val toPrint = elements.zip(numberOrder).foldLeft("\t(")(
 					(str, t) => {
-						val cleanedData = t._1.replaceAll("\"", "")
+						//removing some unwanted pieces of data
+						val cleanedData = (t._1.replaceAll("\"", "")).replaceAll(";", "/")
 						val qte = quoteOrNot(t._2)
 						str + (if(cleanedData == "NULL") "NULL"
 						else qte + cleanedData + qte) + ", "
@@ -158,7 +159,7 @@ object CSVParser{
 	def quoteOrNot(tpe : SQLtype): String = tpe match {
 		case Numb => ""
 		case Date => "\'"
-		case _ => ""
+		case _ => "\""
 	}
 }
 
