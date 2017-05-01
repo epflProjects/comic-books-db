@@ -74,11 +74,11 @@ CREATE TABLE Series(
 	id INTEGER NOT NULL,
 	name VARCHAR(239) NOT NULL, -- constraint assumption
 	format VARCHAR(200),
-	year_began DATE NOT NULL, -- constraint assumption
-	year_ended DATE,
+	year_began INTEGER NOT NULL, -- constraint assumption
+	year_ended INTEGER,
 	publication_dates VARCHAR(103),
-	first_issue_id INTEGER NOT NULL, -- relation constraint (total participation)
-	last_issue_id INTEGER NOT NULL, -- relation constraint (total participation)
+	first_issue_id INTEGER, -- relation constraint (total participation)
+	last_issue_id INTEGER, -- relation constraint (total participation)
 	publisher_id INTEGER NOT NULL, -- relation constraint (total participation)
 	country_id INTEGER NOT NULL, -- relation constraint (total participation)
 	language_id INTEGER NOT NULL, -- relation constraint (total participation)
@@ -90,8 +90,10 @@ CREATE TABLE Series(
 	publishing_format VARCHAR(93),
 	publication_type_id INTEGER, -- relation constraint (partial participation)
 	PRIMARY KEY(id),
-	--FOREIGN KEY(first_issue_id) REFERENCES Issue(id),
-	--FOREIGN KEY(last_issue_id) REFERENCES Issue(id),
+	-- !!! for when plotting queries to create table, thos two lines must be set to comments.
+	-- FOREIGN KEY(first_issue_id) REFERENCES Issue(id),
+	-- FOREIGN KEY(last_issue_id) REFERENCES Issue(id),
+	-- !!!
 	FOREIGN KEY(publisher_id) REFERENCES Publisher(id),
 	FOREIGN KEY(country_id) REFERENCES Country(id),
 	FOREIGN KEY(language_id) REFERENCES Language(id),
@@ -102,9 +104,9 @@ CREATE TABLE Series(
 CREATE TABLE Issue(
 	id INTEGER NOT NULL,
 	number VARCHAR(18),
-	series_id INTEGER NOT NULL, -- relation constraint (total participation)
+	series_id INTEGER, -- relation constraint (total participation)
 	indicia_publisher_id INTEGER, -- relation constraint (partial participation)
-	publication_date DATE,
+	publication_date INTEGER,
 	price VARCHAR(58),
 	page_count INTEGER,
 	indicia_frequency VARCHAR(111),
@@ -114,17 +116,18 @@ CREATE TABLE Issue(
 	valid_isbn CHAR(13),
 	barcode VARCHAR(18),
 	title VARCHAR(67),
-	on_sale_date DATE,
+	on_sale_date INTEGER,
 	rating VARCHAR(50),
 	PRIMARY KEY(id),
 	FOREIGN KEY(series_id) REFERENCES Series(id),
 	FOREIGN KEY(indicia_publisher_id) REFERENCES Indicia_Publisher(id)
 );
 
-alter table Series add constraint first_issue_id foreign key(first_issue_id) references Issue(id);
+-- alter table Series add constraint first_issue_id foreign key(first_issue_id) references Issue(id);
 
-alter table Series add constraint last_issue_id foreign key(last_issue_id) references Issue(id);
+-- alter table Series add constraint last_issue_id foreign key(last_issue_id) references Issue(id);
 
+-- SET FOREIGN_KEY_CHECKS=1; -- VIVA LA HACK
 
 -- contains relations issue, story_type and story_reprint
 CREATE TABLE Story(
