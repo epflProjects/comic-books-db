@@ -1,10 +1,29 @@
 -- a)  Print the brand group names with the highest number of Belgian indicia publishers.
 
+SELECT B.name
+FROM Brand_Group B
+JOIN
+ON
+WHERE IN (
+	SELECT
+	FROM Country C, Publisher P
+	GROUP BY C.name
+	HAVING
+)
 
-?????????? 
+
+SELECT BG.name, COUNT(*)
+FROM Brand_Group BG
+JOIN Publisher P ON BG.publisher_id=P.id
+GROUP BY id
+HAVING country_id IN (
+	SELECT C.id
+	FROM Country C
+	WHERE C.name='Belgium'
+)
 
 -- SELECT DISTINCT B.name
--- FROM 
+-- FROM
 
 
 -- WHERE C.name = 'Belgium'
@@ -56,6 +75,16 @@ HAVING I.publication_date >= 1990
 
 -- e)  Print the number of series for each indicia publisher whose name resembles ‘DC comics’.
 
+SELECT IP.name, COUNT(*)
+FROM Indicia_Publisher IP
+JOIN Country
+WHERE IP.name like 'dc comics' AND IP.id IN (
+	SELECT I.indicia_publisher_id, COUNT(*)
+	FROM Issue I
+	GROUP BY I.indicia_publisher_id
+	ORDER BY COUNT(*)
+)
+
 
 
 
@@ -66,7 +95,7 @@ FROM Story
 WHERE S.id IN (
 	SELECT SR.origin_id
 	FROM story_reprint SR
-	GROUP BY SR.origin_id 
+	GROUP BY SR.origin_id
 	ORDER BY COUNT(*) DESC
 )
 LIMIT 10 -- count 10 here in case not all ids exist ??
@@ -89,8 +118,3 @@ WHERE A.id IN (
 
 
 -- h)  Print all non-reprinted stories involving Batman as a non-featured character.
-
-
-
-
-
