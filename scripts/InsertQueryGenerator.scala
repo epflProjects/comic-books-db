@@ -145,7 +145,7 @@ object CSVParser{
 			val toPrint = elements.zip(numberOrder).foldLeft("\t(")(
 					(str, t) => {
 						//removing some unwanted pieces of data
-						val cleanedData = (t._1.replaceAll("\"", "")).replaceAll(";", "/")
+						val cleanedData = (t._1.replaceAll("\"", ""))//.replaceAll(";", "/")
 						val qte = quoteOrNot(t._2)
 						str + (if(cleanedData == "NULL") "NULL"
 						else qte + cleanedData + qte) + ", "
