@@ -118,3 +118,14 @@ WHERE A.id IN (
 
 
 -- h)  Print all non-reprinted stories involving Batman as a non-featured character.
+SELECT DISTINCT S
+FROM Story S
+WHERE S.feature<>'Batman' S.id IN (
+	SELECT CS.story_id
+	FROM Character_ C
+	JOIN Characters CS ON (CS.character_id=C.id)
+	WHERE C.name='Batman'
+) AND S.id NOT IN (
+	SELECT SR.origin
+	FROM story_reprint SR
+);
