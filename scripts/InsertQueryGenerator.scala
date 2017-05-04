@@ -7,9 +7,9 @@ import scala.collection.mutable._
 /*Note, even though its scala, this file is a script, not a code to be compiled.
  *		Thanks to shebang magic, you just need to give this script executable rights
  *		("chmod a+x InsertQueryGenerator.scala" in your terminal) and then you can execute it
- *		as any shell scripts you would use. (if too lazy to give exec rights, 
+ *		as any shell scripts you would use. (if too lazy to give exec rights,
  *		use scala command utilitary instead.)
- * usage : args 1 == filename of the csv file to parse, 
+ * usage : args 1 == filename of the csv file to parse,
  *		   args 2 == filename of the create query table file
  */
 
@@ -34,7 +34,7 @@ if(args.length < 2){
 		val tableAttributes = TableAttributeParser(Source.fromFile(args(1)).getLines(), tableNameCSV)
 		tableAttributes match {
 			case None => println("[ERROR] Could not find the table you're looking for in the create table queries")
-			case Some(t) => 
+			case Some(t) =>
 				//checking the csv as the correct columns name and number as the table info we fetched
 				val csvLines = Source.fromFile(args(0)).getLines()
 				val colNames = csvLines.next().split(',').map(_.trim)
@@ -92,10 +92,10 @@ object TableAttributeParser {
 	/**
 	*	Takes the first line of a table, the iterator on the rest of the lines,
 	*	And take care of parsing the line following the first as TableInformations.
-	*	Return Optionnally a TableInformation constructed. 
-	*	This method is not really robust entry-wise, you should always give 
+	*	Return Optionnally a TableInformation constructed.
+	*	This method is not really robust entry-wise, you should always give
 	*	a coherent and well written SQL queries of creating table in entry
-	*	Format of a Table  accepted (in a regex like description): 
+	*	Format of a Table  accepted (in a regex like description):
 			CREATE TABLE <tableName>(
 				(<attributeName> <attributeType> <attributeNullitude>?,) *
 				(<PrimaryKeyDeclaration> | <ForeignKeyDeclaration>,?) *
@@ -109,11 +109,11 @@ object TableAttributeParser {
 		while(lines.hasNext && !reachedEndOfTable){
 			val currLine = lines.next()
 			if(currLine.take(2) == ");") reachedEndOfTable = true
-			else{	
+			else{
 				val elements = currLine.split(' ')
 				if(elements.length >= 2){
 					if(elements(0) == "CREATE"){
-						//for some reason the table paser did not stop at the correct end 
+						//for some reason the table paser did not stop at the correct end
 						//of the table and started parsing the following table
 						return None
 					}
@@ -121,7 +121,7 @@ object TableAttributeParser {
 					if(!(attrName == "PRIMARY" || attrName == "FOREIGN" || attrName == "--")){
 						tabInfo.addAttribute(attrName, typeTranslate(elements(1)))
 					}
-				}	
+				}
 			}
 		}
 		Some(tabInfo)
@@ -135,7 +135,7 @@ object TableAttributeParser {
 }
 
 object CSVParser{
-	//will print the data from the csv in the pw (already opened) into SQL values. 
+	//will print the data from the csv in the pw (already opened) into SQL values.
 	//the boolean returned tells if something wrong happened or not.
 	def apply(lines: Iterator[String], tabInfo: TableInformations, pw: PrintWriter): Boolean = {
 		val numberOrder = tabInfo.getAttributes.map(t => t._2)
@@ -184,5 +184,6 @@ class TableInformations(name: String){
 			(str,attr) => str + "\t"+attr._1+"\n"
 		)
 	}
+
 
 }
