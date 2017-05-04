@@ -57,7 +57,8 @@ app.get('/constructed', function(request, response) {
                     console.log("Erreur ma gueule.");
                 } else {
                     console.log("Query success.");
-                    console.log(rows);
+                    console.log(fields[0].orgTable);
+                    // TODO create a JSON file with table name and attributes name and finally the data
                     response.json(rows);
                 }
             });
