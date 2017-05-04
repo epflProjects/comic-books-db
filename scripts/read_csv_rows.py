@@ -2,10 +2,10 @@ import csv
 from collections import defaultdict
 import os
 
-columns = defaultdict(list)
 
 for filename in os.listdir():
   if filename.endswith(".csv"): 
+    columns = defaultdict(list)
 
     print('####################')
     print(filename)

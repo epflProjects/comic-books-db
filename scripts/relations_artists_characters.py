@@ -4,7 +4,7 @@ import re
 ######################################################FUNCTIONS#########################################################
 
 def get_artists(string) :
-  not_artists = ['colour', 'black', 'white', 'red', 'artist', 'ambrose', '[as', 'illustration', ']', 'various', 'on Sheena', 'shop']
+  not_artists = ['colour', 'black', 'white', 'red', 'artist', 'ambrose', '[as', 'illustration', ']', 'various', 'on Sheena', 'shop', '!', '& Co.', '\'','(from a screenplay by Geoffrey Homes and Lewis R. Foster','(adaptation','(Western Publishing Production Shop', '(Vertaling','(',' including Roy Richardson', '(graytones','(målning', '(graytones', '(målning', '(painted', '(painted}', '(photo', '(photograph', '(photographs', '(photograph}', '(photos', '(separations', '(vertaling', '(översättning', ')', ') photo', '+' ]
   not_artists_equal = ['mone', 'illo', 'D', 'Z', 'Win', 'S', 'Quick!! Theres a gas leak in the kitchen!', 'Jr.', 'Writer S', '                     ']
 
   names = set()
@@ -19,6 +19,8 @@ def get_artists(string) :
     string = string[1:]
   if string.endswith(';'):
     string = string[:-1]
+  if string.startswith(':'):
+    string = string[1:]
 
   #split different artists
   list_of_artists = string.split(';')
