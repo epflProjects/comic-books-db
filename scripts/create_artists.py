@@ -9,7 +9,7 @@ filename = 'story.csv'
 attributes_to_check = ['script', 'pencils', 'inks', 'colors']
 attributes = []
 
-not_artists = ['colour', 'black', 'white', 'red', 'artist', 'ambrose', '[as', 'illustration', ']', 'various', 'on Sheena', 'shop']
+not_artists = ['colour', 'black', 'white', 'red', 'artist', 'ambrose', '[as', 'illustration', ']', 'various', 'on Sheena', 'shop', '!', '& Co.', '\'','(from a screenplay by Geoffrey Homes and Lewis R. Foster','(adaptation','(Western Publishing Production Shop', '(Vertaling','(',' including Roy Richardson', '(graytones','(målning', '(graytones', '(målning', '(painted', '(painted}', '(photo', '(photograph', '(photographs', '(photograph}', '(photos', '(separations', '(vertaling', '(översättning', ')', ') photo', '+' ]
 not_artists_equal = ['mone', 'illo', 'D', 'Z', 'Win', 'S', 'Quick!! Theres a gas leak in the kitchen!', 'Jr.', 'Writer S', '                     ']
 
 with open(filename, 'r') as f:
@@ -33,6 +33,8 @@ with open(filename, 'r') as f:
           x = x[1:]
         if x.endswith(';'):
           x = x[:-1]
+        if x.startswith(':'):
+          x = x[1:]
 
         #split different artists
         list_of_artists = x.split(';')
