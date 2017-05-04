@@ -2,14 +2,14 @@
 
 CREATE TABLE Story_Type(
 	id INTEGER NOT NULL,
-	name VARCHAR(239) NOT NULL, -- constraint assumption
+	name VARCHAR(40) NOT NULL, -- constraint assumption
 	PRIMARY KEY(id)
 );
 
 CREATE TABLE Language(
 	id INTEGER NOT NULL,
-	code CHAR(4) NOT NULL, -- constraint assumption
-	name VARCHAR(124) NOT NULL, -- constraint assumption
+	code CHAR(3) NOT NULL, -- constraint assumption
+	name VARCHAR(27) NOT NULL, -- constraint assumption
 	PRIMARY KEY(id)
 );
 
@@ -22,7 +22,7 @@ CREATE TABLE Series_Publication_Type(
 CREATE TABLE Country(
 	id INTEGER NOT NULL,
 	code CHAR(4) NOT NULL, -- constraint assumption
-	name VARCHAR(122) NOT NULL, -- constraint assumption
+	name VARCHAR(36) NOT NULL, -- constraint assumption
 	PRIMARY KEY(id)
 );
 
@@ -34,7 +34,7 @@ CREATE TABLE Publisher(
 	year_began INTEGER,
 	year_ended INTEGER,
 	notes TEXT,
-	url VARCHAR(152),
+	url VARCHAR(130),
 	PRIMARY KEY(id),
 	FOREIGN KEY(country_id) REFERENCES Country(id)
 );
@@ -62,7 +62,7 @@ CREATE TABLE Indicia_Publisher(
 	year_ended INTEGER,
 	is_surrogate BIT NOT NULL, -- constraint assumption -- 0 or 1 value
 	notes TEXT,
-	url VARCHAR(152),
+	url VARCHAR(115),
 	PRIMARY KEY(id),
 	FOREIGN KEY(country_id) REFERENCES Country(id),
 	FOREIGN KEY(publisher_id) REFERENCES Publisher(id)
@@ -76,7 +76,7 @@ CREATE TABLE Series(
 	format VARCHAR(200),
 	year_began INTEGER NOT NULL, -- constraint assumption
 	year_ended INTEGER,
-	publication_dates VARCHAR(103),
+	publication_dates VARCHAR(101),
 	first_issue_id INTEGER, -- relation constraint (total participation)
 	last_issue_id INTEGER, -- relation constraint (total participation)
 	publisher_id INTEGER NOT NULL, -- relation constraint (total participation)
@@ -84,7 +84,7 @@ CREATE TABLE Series(
 	language_id INTEGER NOT NULL, -- relation constraint (total participation)
 	notes TEXT,
 	color VARCHAR(200),
-	dimensions VARCHAR(709),
+	dimensions VARCHAR(171),
 	paper_stock VARCHAR(140),
 	binding VARCHAR(90),
 	publishing_format VARCHAR(93),
@@ -103,21 +103,21 @@ CREATE TABLE Series(
 -- contains relations series, indicia_publ and issue_reprint
 CREATE TABLE Issue(
 	id INTEGER NOT NULL,
-	number VARCHAR(18),
-	series_id INTEGER, -- relation constraint (total participation)
+	number VARCHAR(49),
+	series_id INTEGER NOT NULL, -- relation constraint (total participation)
 	indicia_publisher_id INTEGER, -- relation constraint (partial participation)
 	publication_date INTEGER,
-	price VARCHAR(58),
+	price VARCHAR(220),
 	page_count INTEGER,
-	indicia_frequency VARCHAR(111),
+	indicia_frequency VARCHAR(134),
 	editing TEXT,
 	notes TEXT,
-	isbn VARCHAR(28),
+	isbn VARCHAR(32),
 	valid_isbn CHAR(13),
-	barcode VARCHAR(18),
-	title VARCHAR(67),
+	barcode VARCHAR(38),
+	title VARCHAR(111),
 	on_sale_date INTEGER,
-	rating VARCHAR(50),
+	rating VARCHAR(118),
 	PRIMARY KEY(id),
 	FOREIGN KEY(series_id) REFERENCES Series(id),
 	FOREIGN KEY(indicia_publisher_id) REFERENCES Indicia_Publisher(id)
@@ -132,12 +132,12 @@ CREATE TABLE Issue(
 -- contains relations issue, story_type and story_reprint
 CREATE TABLE Story(
 	id INTEGER NOT NULL,
-	title VARCHAR(4802),
-	feature VARCHAR(211),
+	title VARCHAR(254),
+	feature VARCHAR(255),
 	issue_id INTEGER NOT NULL, -- relation constraint (total participation)
-	letters VARCHAR(49),
-	editing VARCHAR(664),
-	genre VARCHAR(57),
+	letters VARCHAR(776),
+	editing VARCHAR(347),
+	genre VARCHAR(119),
 	synopsis TEXT,
 	reprint_notes TEXT,
 	notes TEXT,
