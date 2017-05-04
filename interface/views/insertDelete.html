@@ -10,7 +10,7 @@
     <title>Database</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="styles/framework/bootstrap-3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="styles/theme.css" rel="stylesheet">
@@ -18,6 +18,11 @@
     <!-- jQuery -->
     <script src="scripts/ext/jquery.js"></script>
 
+    <script>
+        $( function() {
+            $( "#tabs" ).tabs();
+        } );
+    </script>
 </head>
 <body>
 <!-- Black topbar -->
@@ -36,8 +41,8 @@
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li><a href="index.html">Search</a></li>
-                <li><a href="insertDelete.html">Insert/Delete</a></li>
-                <li class="active"><a href="#">About<span class="sr-only">(current)</span></a></li>
+                <li class="active"><a href="#">Insert/Delete<span class="sr-only">(current)</span></a></li>
+                <li><a href="about.html">About</a></li>
             </ul>
         </div>
     </div>
@@ -47,13 +52,30 @@
 <div class="container">
     <!-- Page Header -->
     <div class="page-header" id="page_header">
-        <h1>Comic Books <small>About</small></h1>
+        <h1>Comic Books <small>Insert/Delete</small></h1>
     </div>
+
+    <div id="tabs">
+        <!-- Delete/Insert Tabs -->
+        <ul class="nav nav-tabs">
+            <li role="presentation" class="active" href="#tabs-insert"><a href="#">Insert</a></li>
+            <li role="presentation"><a href="#tabs-delete">Delete</a></li>
+        </ul>
+
+        <!-- Insert Tab -->
+        <div id="tabs-insert">
+
+        </div>
+
+        <!-- Delete Tab -->
+        <div id="tabs-delete">
+
+        </div>
+    </div>
+
 
     <!-- Search Fields -->
     <div class="row">
-
-
     </div>
 
 </div>
@@ -67,7 +89,7 @@
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="styles/framework/bootstrap-3.3.7/assets/js/vendor/jquery.min.js"><\/script>')</script>
-<script src="styles/framework/bootstrap-3.3.7/dist/js/bootstrap.min.js"></script>
+<script src="bootstrap/dist/js/bootstrap.min.js"></script>
 </body>
 
 </html>
