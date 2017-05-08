@@ -71,7 +71,10 @@
                     <!-- Output Table -->
                     <div>
                         <h3>Result</h3>
-                        <div id="output_table"></div>
+                        <div>
+                            <table class="table table-striped table-bordered" id="output_table"></table>
+                        </div>
+
                     </div>
                 </div>
             </form>
@@ -80,7 +83,7 @@
         <!-- Given Queries Table -->
         <div class="col-md-4">
             <h3>Constructed Queries</h3>
-            <table class="table table-hover table-bordered">
+            <table class="table table-hover table-bordered" id="constructed_query_table">
                 <!-- TODO ajouter des identifiant et tester dans un main.js -->
                 <tr>
                     <th id="given_search_brand_group">The Brand Group names with the highest number of Belgian indicia publishers</th>
@@ -116,6 +119,7 @@
 
 <!-- javascript -->
 <script src="scripts/main.js"></script>
+<script src="scripts/constructed.js"></script>
 
 <!-- Bootstrap core JavaScript
 ================================================== -->
