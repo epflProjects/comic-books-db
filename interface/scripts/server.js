@@ -10,7 +10,13 @@ app.use(express.static(__dirname+'/../scripts'));
 app.use('/bootstrap', express.static(path.join(__dirname+'/../styles/framework/bootstrap-3.3.7/')));
 app.use('/scripts', express.static(path.join(__dirname+'/../scripts/')));
 app.use('/styles', express.static(path.join(__dirname+'/../styles/')));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
+// TODO On tente la variable globale
+var insert_table_name
 
 var port = process.env.PORT || 1337;
 
@@ -56,7 +62,7 @@ app.get('/constructed', function(request, response) {
                 if (error) {
                     console.log("Error in Belgian query.");
                 } else {
-                    responseOfQuery(rows, fields, response);
+                    responseOfConstructedQuery(rows, fields, response);
                 }
             });
     } else if (request.query.q === 'danish') {
@@ -65,7 +71,7 @@ app.get('/constructed', function(request, response) {
                 if (error) {
                     console.log("Error in Danish query.");
                 } else {
-                    responseOfQuery(rows, fields, response);
+                    responseOfConstructedQuery(rows, fields, response);
                 }
             });
     } else if (request.query.q === 'swiss') {
@@ -74,7 +80,7 @@ app.get('/constructed', function(request, response) {
                 if (error) {
                     console.log("Error in Swiss query.");
                 } else {
-                    responseOfQuery(rows, fields, response);
+                    responseOfConstructedQuery(rows, fields, response);
                 }
             });
     } else if (request.query.q ==='1990') {
@@ -83,7 +89,7 @@ app.get('/constructed', function(request, response) {
                 if (error) {
                     console.log("Erreur ma gueule.");
                 } else {
-                    responseOfQuery(rows, fields, response);
+                    responseOfConstructedQuery(rows, fields, response);
                 }
             });
     } else if (request.query.q === 'dcComics') {
@@ -92,7 +98,7 @@ app.get('/constructed', function(request, response) {
                 if (error) {
                     console.log("Error in DC Comics query.");
                 } else {
-                    responseOfQuery(rows, fields, response);
+                    responseOfConstructedQuery(rows, fields, response);
                 }
             });
     } else if (request.query.q === 'reprinted') {
@@ -101,7 +107,7 @@ app.get('/constructed', function(request, response) {
                 if (error) {
                     console.log("Error in reprinted query.");
                 } else {
-                    responseOfQuery(rows, fields, response);
+                    responseOfConstructedQuery(rows, fields, response);
                 }
             });
     } else if (request.query.q === 'artist') {
@@ -110,7 +116,7 @@ app.get('/constructed', function(request, response) {
                 if (error) {
                     console.log("Error in artist query.");
                 } else {
-                    responseOfQuery(rows, fields, response);
+                    responseOfConstructedQuery(rows, fields, response);
                 }
             });
     } else if (request.query.q === 'batman') {
@@ -119,14 +125,36 @@ app.get('/constructed', function(request, response) {
                 if (error) {
                     console.log("Error in batman query.");
                 } else {
-                    responseOfQuery(rows, fields, response);
+                    responseOfConstructedQuery(rows, fields, response);
                 }
-            })
+            });
     }
 });
 
 app.get('insertDelete.html', function(request, response) {
     response.sendFile('insertDelete.html');
+});
+
+app.get('/insert', function(request, response) {
+   if (request.query.q === '0') {
+       insert_table_name = "Artist";
+       responseInsertQuery(response, "Artist")
+   }
+});
+
+app.post('/insert/data', function(request, response) {
+    console.log(request.body);
+    var essai = "INSERT INTO Artist (id, name) VALUES (1001, 'Salope')";
+    connection.query(essai/*"INSERT INTO "+insert_table_name +"SET ?", [request.body]*/,
+    function (error, results, fields) {
+        if (error) {
+            console.log("Error when inserting a new tuple.");
+            console.log(error.code);
+        } else {
+            console.log("COOL");
+            // TODO TROUVER MOYEN DE REPONDRE AU CLIENT
+        }
+    })
 });
 
 app.get('about.html', function(request, response) {
@@ -140,8 +168,8 @@ app.use(function(req, res, next){
 
 app.listen(port);
 
-// utility
-function responseOfQuery(rows, fields, response) {
+// utility functions
+function responseOfConstructedQuery(rows, fields, response) {
     console.log(fields.length);
     console.log("Query success.");
     var attributes_name = [];
@@ -154,5 +182,24 @@ function responseOfQuery(rows, fields, response) {
         "rows" : rows
     };
     response.json(jsonFile);
+}
+
+function responseInsertQuery(response, table_name) {
+    connection.query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='Comic-books' AND `TABLE_NAME`='"+ table_name +"';",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in insert query.");
+            } else {
+                var attributes_name = [];
+                for (var i = 0; i < fields.length; i++) {
+                    attributes_name.push(fields[i].name);
+                }
+                var jsonFile = {
+                    "attributes_name" : attributes_name,
+                    "rows" : rows
+                };
+                response.json(jsonFile);
+            }
+        });
 }
 
