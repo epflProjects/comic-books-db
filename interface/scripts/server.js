@@ -31,37 +31,97 @@ connection.connect(function(err) {
 });
 
 /*app.get('/', function(request, response) {
-    connection.query('SELECT I.publication_date, COUNT(*) FROM Issue I GROUP BY I.publication_date HAVING I.publication_date >= 1990;',
-        function(error, rows, fields) {
-            if (error) {
-                console.log("Erreur ma gueule.");
-            } else {
-                console.log("Query success.");
-                console.log(rows);
-                response.json(rows);
-            }
-        });
-});*/
+ connection.query('SELECT I.publication_date, COUNT(*) FROM Issue I GROUP BY I.publication_date HAVING I.publication_date >= 1990;',
+ function(error, rows, fields) {
+ if (error) {
+ console.log("Erreur ma gueule.");
+ } else {
+ console.log("Query success.");
+ console.log(rows);
+ response.json(rows);
+ }
+ });
+ });*/
 
 var router = express.Router();
 
 app.get('/', function(request, response) {
-   response.sendFile('/index.html');
+    response.sendFile('/index.html');
 });
 
 app.get('/constructed', function(request, response) {
-    if (request.query.q ==='1990') {
+    if (request.query.q === 'belgian') {
+        connection.query("SELECT BG.name FROM Brand_Group BG WHERE BG.publisher_id IN (SELECT P.id FROM Publisher P JOIN Indicia_Publisher IP ON IP.publisher_id=P.id WHERE IP.id IN (SELECT IP.id FROM Indicia_Publisher IP WHERE IP.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Belgium')));",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in Belgian query.");
+                } else {
+                    responseOfQuery(rows, fields, response);
+                }
+            });
+    } else if (request.query.q === 'danish') {
+        connection.query("SELECT P.id, P.name FROM Publisher P WHERE P.id IN (SELECT S.publisher_id FROM Series S WHERE S.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Denmark'));",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in Danish query.");
+                } else {
+                    responseOfQuery(rows, fields, response);
+                }
+            });
+    } else if (request.query.q === 'swiss') {
+        connection.query("SELECT S.name FROM Series S WHERE S.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Switzerland') AND S.publication_type_id IN (SELECT PT.id FROM Series_Publication_Type PT WHERE PT.name = 'magazine');",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in Swiss query.");
+                } else {
+                    responseOfQuery(rows, fields, response);
+                }
+            });
+    } else if (request.query.q ==='1990') {
         connection.query('SELECT I.publication_date, COUNT(*) FROM Issue I GROUP BY I.publication_date HAVING I.publication_date >= 1990;',
-            function(error, rows, fields) {
+            function (error, rows, fields) {
                 if (error) {
                     console.log("Erreur ma gueule.");
                 } else {
-                    console.log("Query success.");
-                    console.log(fields[0].orgTable);
-                    // TODO create a JSON file with table name and attributes name and finally the data
-                    response.json(rows);
+                    responseOfQuery(rows, fields, response);
                 }
             });
+    } else if (request.query.q === 'dcComics') {
+        connection.query("SELECT IP.name FROM Indicia_Publisher IP JOIN Publisher P ON IP.publisher_id = P.id WHERE IP.name like '%dc comics%' AND IP.id IN (SELECT S.publisher_id FROM Series S GROUP BY S.publisher_id ORDER BY COUNT(*));",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in DC Comics query.");
+                } else {
+                    responseOfQuery(rows, fields, response);
+                }
+            });
+    } else if (request.query.q === 'reprinted') {
+        connection.query("SELECT S.title FROM Story S WHERE S.id IN (SELECT SR.origin_id FROM story_reprint SR GROUP BY SR.origin_id ORDER BY COUNT(*) DESC) AND S.title <> 'NULL' LIMIT 10;",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in reprinted query.");
+                } else {
+                    responseOfQuery(rows, fields, response);
+                }
+            });
+    } else if (request.query.q === 'artist') {
+        connection.query("SELECT A.name FROM Artist A WHERE A.id IN (SELECT DISTINCT S.artist_id FROM script S) AND A.id IN (SELECT DISTINCT P.artist_id FROM pencils P) AND A.id IN ( SELECT DISTINCT C.artist_id FROM colors C);",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in artist query.");
+                } else {
+                    responseOfQuery(rows, fields, response);
+                }
+            });
+    } else if (request.query.q === 'batman') {
+        connection.query("SELECT DISTINCT S.title FROM Story S WHERE S.feature<>'Batman' AND S.id IN (SELECT CS.story_id FROM Character_ C JOIN Characters CS ON (CS.character_id=C.id) WHERE C.name='Batman') AND S.id NOT IN (SELECT SR.origin_id FROM story_reprint SR);",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in batman query.");
+                } else {
+                    responseOfQuery(rows, fields, response);
+                }
+            })
     }
 });
 
@@ -79,4 +139,20 @@ app.use(function(req, res, next){
 });
 
 app.listen(port);
+
+// utility
+function responseOfQuery(rows, fields, response) {
+    console.log(fields.length);
+    console.log("Query success.");
+    var attributes_name = [];
+    for (var i = 0; i < fields.length; i++) {
+        attributes_name.push(fields[i].name);
+    }
+    var jsonFile = {
+        "table_name" : fields[0].orgTable,
+        "attributes_name" : attributes_name,
+        "rows" : rows
+    };
+    response.json(jsonFile);
+}
 
