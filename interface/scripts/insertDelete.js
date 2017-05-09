@@ -12,6 +12,33 @@ $(document).ready(function () {
                 url: '/insert/data',
                 success: function (response) {
                     console.log(response);
+                    cleanAlert();
+
+                    $("#insert_alert").append("<div class='alert alert-success alert-dismissible fade in'" +
+                        "id='file_size_alert_window'>"
+                        + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
+                        + "</a><strong>" + "Success! " + "</strong>" + "The tuple was inserted!"
+                        + "</div>");
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                    cleanAlert();
+
+                    switch(response.responseText) {
+                        case "Duplicate":
+                            $("#insert_alert").append("<div class='alert alert-warning alert-dismissible fade in'" +
+                            "id='file_size_alert_window'>"
+                            + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
+                            + "</a><strong>" + "Warning! " + "</strong>" + "The tuple already exists!"
+                            + "</div>");
+                            break;
+                        default:
+                            $("#insert_alert").append("<div class='alert alert-warning alert-dismissible fade in'" +
+                                "id='file_size_alert_window'>"
+                                + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
+                                + "</a><strong>" + "Warning! " + "</strong>" + "Something went wrong!"
+                                + "</div>");
+                    }
                 }
             })
 
@@ -22,6 +49,46 @@ $(document).ready(function () {
         var dropdownValue = parseInt(jQuery(this).val());
 
         getFormElements(dropdownValue, false);
+
+        $("#delete_form").submit(function (e) {
+            e.preventDefault();
+            $.ajax({
+                data: $(this).serialize(),
+                type: 'POST',
+                url: '/delete/data',
+                success: function (response) {
+                    console.log(response);
+                    cleanAlert();
+
+                    $("#delete_alert").append("<div class='alert alert-success alert-dismissible fade in'" +
+                        "id='file_size_alert_window'>"
+                        + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
+                        + "</a><strong>" + "Success! " + "</strong>" + "The tuple was inserted!"
+                        + "</div>");
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                    cleanAlert();
+
+                    switch(response.responseText) {
+                        case "Duplicate":
+                            $("#delete_alert").append("<div class='alert alert-warning alert-dismissible fade in'" +
+                                "id='file_size_alert_window'>"
+                                + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
+                                + "</a><strong>" + "Warning! " + "</strong>" + "The tuple already exists!"
+                                + "</div>");
+                            break;
+                        default:
+                            $("#delete_alert").append("<div class='alert alert-warning alert-dismissible fade in'" +
+                                "id='file_size_alert_window'>"
+                                + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
+                                + "</a><strong>" + "Warning! " + "</strong>" + "Something went wrong!"
+                                + "</div>");
+                    }
+                }
+            })
+
+        });
     })
 });
 
@@ -69,11 +136,23 @@ function getFormElements(tableNumber, insert) {
             var form = $("#delete_form");
             console.log(data);
             for (var i in data.rows) {
-                form.append("<label>"+ data.rows[i][data.attributes_name[0]] +"</label><input class='form-control' name='"+data.rows[i][data.attributes_name[0]]+"' type='txt' required>")
+                form.append("<label>"+ data.rows[i][data.attributes_name[0]] +"</label><input class='form-control' name='"+data.rows[i][data.attributes_name[0]]+"' type='txt'>")
             }
             form.append("<br>");
-            form.append('<button class="btn btn-info " id="insert_button" type="submit"><span class="glyphicon glyphicon-pencil"></span> Insert </button>');
+            form.append('<button class="btn btn-info " id="delete_button" type="submit"><span class="glyphicon glyphicon-pencil"></span> Delete </button>');
         });
     }
+}
+
+function cleanAlert() {
+    $("#insert_alert div").each(function() {
+        this.remove();
+    });
+    $("#insert_alert a").each(function() {
+        this.remove();
+    });
+    $("#insert_alert strong").each(function() {
+        this.remove();
+    });
 }
 

@@ -52,16 +52,42 @@
 
     <!-- Search Fields -->
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-8">
             <h3>Custom Query</h3>
             <form class="form-inline">
-                <div class="form-group">
+                <div class="col-md-6 form-group">
                     <label for="search" class="sr-only">Search</label>
                     <input type="txt" class="form-control" id="search" placeholder="Search" required>
 
                     in
 
-                    <select class="form-control" id="search_by"></select>
+                    <div class="col-lg-12">
+                    <div class="button-group">
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Select table(s)<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#" class="small" data-value="0" tabIndex="-1"><input type="checkbox"/>&nbsp;Artist</a></li>
+                            <li><a href="#" class="small" data-value="1" tabIndex="-1"><input type="checkbox"/>&nbsp;Brand Group</a></li>
+                            <li><a href="#" class="small" data-value="2" tabIndex="-1"><input type="checkbox"/>&nbsp;Character_</a></li>
+                            <li><a href="#" class="small" data-value="3" tabIndex="-1"><input type="checkbox"/>&nbsp;characters</a></li>
+                            <li><a href="#" class="small" data-value="4" tabIndex="-1"><input type="checkbox"/>&nbsp;colors</a></li>
+                            <li><a href="#" class="small" data-value="5" tabIndex="-1"><input type="checkbox"/>&nbsp;Country</a></li>
+                            <li><a href="#" class="small" data-value="6" tabIndex="-1"><input type="checkbox"/>&nbsp;Indicia_Publisher</a></li>
+                            <li><a href="#" class="small" data-value="7" tabIndex="-1"><input type="checkbox"/>&nbsp;inks</a></li>
+                            <li><a href="#" class="small" data-value="8" tabIndex="-1"><input type="checkbox"/>&nbsp;Issue</a></li>
+                            <li><a href="#" class="small" data-value="9" tabIndex="-1"><input type="checkbox"/>&nbsp;Issue reprint</a></li>
+                            <li><a href="#" class="small" data-value="10" tabIndex="-1"><input type="checkbox"/>&nbsp;Language</a></li>
+                            <li><a href="#" class="small" data-value="11" tabIndex="-1"><input type="checkbox"/>&nbsp;pencils</a></li>
+                            <li><a href="#" class="small" data-value="12" tabIndex="-1"><input type="checkbox"/>&nbsp;Publisher</a></li>
+                            <li><a href="#" class="small" data-value="13" tabIndex="-1"><input type="checkbox"/>&nbsp;script</a></li>
+                            <li><a href="#" class="small" data-value="14" tabIndex="-1"><input type="checkbox"/>&nbsp;Series</a></li>
+                            <li><a href="#" class="small" data-value="15" tabIndex="-1"><input type="checkbox"/>&nbsp;Series Publication Type</a></li>
+                            <li><a href="#" class="small" data-value="16" tabIndex="-1"><input type="checkbox"/>&nbsp;Story</a></li>
+                            <li><a href="#" class="small" data-value="17" tabIndex="-1"><input type="checkbox"/>&nbsp;Story Reprint</a></li>
+                            <li><a href="#" class="small" data-value="18" tabIndex="-1"><input type="checkbox"/>&nbsp;Story Type</a></li>
+                        </ul>
+                    </div>
+                    </div>
+
 
                     <button class="btn btn-info ">
                         <span class="glyphicon glyphicon-search"></span>

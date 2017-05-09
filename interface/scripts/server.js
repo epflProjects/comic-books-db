@@ -139,22 +139,100 @@ app.get('/insert', function(request, response) {
    if (request.query.q === '0') {
        insert_table_name = "Artist";
        responseInsertQuery(response, "Artist")
+   } else if (request.query.q === '1') {
+       insert_table_name = "Brand_Group";
+       responseInsertQuery(response, "Brand_Group");
+   } else if (request.query.q === '2') {
+       insert_table_name = "Character_";
+       responseInsertQuery(response, "Character_");
+   } else if (request.query.q === '3') {
+       insert_table_name = "characters";
+       responseInsertQuery(response, "characters");
+   } else if (request.query.q === '4') {
+       insert_table_name = "colors";
+       responseInsertQuery(response, "colors");
+   } else if (request.query.q === '5') {
+       insert_table_name = "Country";
+       responseInsertQuery(response, "Country");
+   } else if (request.query.q === '6') {
+       insert_table_name = "Indicia_Publisher";
+       responseInsertQuery(response, "Indicia_Publisher");
+   } else if (request.query.q === '7') {
+       insert_table_name = "inks";
+       responseInsertQuery(response, "inks");
+   } else if (request.query.q === '8') {
+       insert_table_name = "Issue";
+       responseInsertQuery(response, "Issue");
+   } else if (request.query.q === '9') {
+       insert_table_name = "issue_reprint";
+       responseInsertQuery(response, "issue_reprint");
+   } else if (request.query.q === '10') {
+       insert_table_name = "Language";
+       responseInsertQuery(response, "Language");
+   } else if (request.query.q === '11') {
+       insert_table_name = "pencils";
+       responseInsertQuery(response, "pencils");
+   } else if (request.query.q === '12') {
+       insert_table_name = "Publisher";
+       responseInsertQuery(response, "Publisher");
+   } else if (request.query.q === '13') {
+       insert_table_name = "script";
+       responseInsertQuery(response, "script");
+   } else if (request.query.q === '14') {
+       insert_table_name = "Series";
+       responseInsertQuery(response, "Series");
+   } else if (request.query.q === '15') {
+       insert_table_name = "Series_Publication_Type";
+       responseInsertQuery(response, "Series_Publication_Type");
+   } else if (request.query.q === '16') {
+       insert_table_name = "Story";
+       responseInsertQuery(response, "Story");
+   } else if (request.query.q === '17') {
+       insert_table_name = "story_reprint";
+       responseInsertQuery(response, "story_reprint");
+   } else if (request.query.q === '18') {
+       insert_table_name = "Story_Type";
+       responseInsertQuery(response, "Story_Type");
    }
 });
 
 app.post('/insert/data', function(request, response) {
     console.log(request.body);
-    var essai = "INSERT INTO Artist (id, name) VALUES (1001, 'Salope')";
-    connection.query(essai/*"INSERT INTO "+insert_table_name +"SET ?", [request.body]*/,
+    console.log(insert_table_name);
+    var query = connection.query("INSERT INTO "+insert_table_name +" SET ?", request.body,
     function (error, results, fields) {
         if (error) {
             console.log("Error when inserting a new tuple.");
             console.log(error.code);
+            switch (error.code) {
+                case "ER_DUP_ENTRY":
+                    response.status(502).send("Duplicate");
+                    break;
+                default:
+                    response.status(404).send("zut");
+            }
         } else {
             console.log("COOL");
-            // TODO TROUVER MOYEN DE REPONDRE AU CLIENT
+            response.status(200).send("OK");
         }
-    })
+    });
+    console.log(query.sql);
+});
+
+app.post('/delete/data', function(request, response) {
+    // TODO faire fonction utile qui prend request.body et qui crée la query avec les and
+    console.log(request.body);
+    createEndOfQuery(request.body);
+    var query = connection.query("DELETE FROM "+ insert_table_name +" WHERE ?", request.body,
+    function (error, result, fields) {
+        if (error) {
+            console.log("Error when deleting a new tuple.");
+        } else {
+            console.log("DELETED!");
+            console.log(result.affectedRows);
+        }
+    });
+    console.log(query.sql);
 });
 
 app.get('about.html', function(request, response) {
@@ -201,5 +279,12 @@ function responseInsertQuery(response, table_name) {
                 response.json(jsonFile);
             }
         });
+}
+
+function createEndOfQuery(body) {
+    var query;
+    for (var i in body) {
+        console.log("1 "+ body[i]);
+    }
 }
 
