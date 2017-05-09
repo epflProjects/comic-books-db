@@ -18,11 +18,6 @@
     <!-- jQuery -->
     <script src="scripts/ext/jquery.js"></script>
 
-    <script>
-        $( function() {
-            $( "#tabs" ).tabs();
-        } );
-    </script>
 </head>
 <body>
 <!-- Black topbar -->
@@ -58,47 +53,77 @@
     <div id="tabs">
         <!-- Delete/Insert Tabs -->
         <ul class="nav nav-tabs">
-            <li role="presentation" class="active" href="#tabs-insert"><a href="#">Insert</a></li>
-            <li role="presentation"><a href="#tabs-delete">Delete</a></li>
+            <li role="presentation" class="active" href="#tabs-insert"><a data-toggle="tab" href="#tabs-insert">Insert</a></li>
+            <li role="presentation"><a data-toggle="tab" href="#tabs-delete">Delete</a></li>
         </ul>
+        <div class="tab-content">
+            <!-- Insert Tab -->
+            <div id="tabs-insert" class="tab-pane fade in active">
+                <h4>Choose a table:</h4>
+                <div id="tabs-insert_tables">
+                    <select class="form-control" id="insert_search_by">
+                        <option value="0">Artist</option>
+                        <option value="1">Brand Group</option>
+                        <option value="2">Character_</option>
+                        <option value="3">characters</option>
+                        <option value="4">colors</option>
+                        <option value="5">Country</option>
+                        <option value="6">Indicia Publisher</option>
+                        <option value="7">inks</option>
+                        <option value="8">Issue</option>
+                        <option value="9">Issue reprint</option>
+                        <option value="10">Language</option>
+                        <option value="11">pencils</option>
+                        <option value="12">Publisher</option>
+                        <option value="13">script</option>
+                        <option value="14">Series</option>
+                        <option value="15">Series Publication Type</option>
+                        <option value="16">Story</option>
+                        <option value="17">Story Reprint</option>
+                        <option value="18">Story Type</option>
+                    </select>
+                </div>
 
-        <!-- Insert Tab -->
-        <div id="tabs-insert">
-            <h4>Choose a table:</h4>
-            <div id="tabs-insert_tables">
-                <select class="form-control" id="search_by">
-                    <option value="0">Artist</option>
-                    <option value="1">Brand Group</option>
-                    <option value="2">Character_</option>
-                    <option value="3">characters</option>
-                    <option value="4">colors</option>
-                    <option value="5">Country</option>
-                    <option value="6">Indicia Publisher</option>
-                    <option value="7">inks</option>
-                    <option value="8">Issue</option>
-                    <option value="9">Issue reprint</option>
-                    <option value="10">Language</option>
-                    <option value="11">pencils</option>
-                    <option value="12">Publisher</option>
-                    <option value="13">script</option>
-                    <option value="14">Series</option>
-                    <option value="15">Series Publication Type</option>
-                    <option value="16">Story</option>
-                    <option value="17">Story Reprint</option>
-                    <option value="18">Story Type</option>
-                </select>
+                <div>
+                    <form id="insert_form">
+
+                    </form>
+                </div>
             </div>
 
-            <div>
-                <form id="insert_form">
+            <!-- Delete Tab -->
+            <div id="tabs-delete" class="tab-pane fade">
+                <h4>Choose a table in which:</h4>
+                <div id="tabs-delete_tables">
+                    <select class="form-control" id="delete_search_by">
+                        <option value="0">Artist</option>
+                        <option value="1">Brand Group</option>
+                        <option value="2">Character_</option>
+                        <option value="3">characters</option>
+                        <option value="4">colors</option>
+                        <option value="5">Country</option>
+                        <option value="6">Indicia Publisher</option>
+                        <option value="7">inks</option>
+                        <option value="8">Issue</option>
+                        <option value="9">Issue reprint</option>
+                        <option value="10">Language</option>
+                        <option value="11">pencils</option>
+                        <option value="12">Publisher</option>
+                        <option value="13">script</option>
+                        <option value="14">Series</option>
+                        <option value="15">Series Publication Type</option>
+                        <option value="16">Story</option>
+                        <option value="17">Story Reprint</option>
+                        <option value="18">Story Type</option>
+                    </select>
+                </div>
 
-                </form>
+                <div>
+                    <form id="delete_form">
+
+                    </form>
+                </div>
             </div>
-        </div>
-
-        <!-- Delete Tab -->
-        <div id="tabs-delete">
-
         </div>
     </div>
 
