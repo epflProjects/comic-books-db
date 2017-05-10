@@ -12,7 +12,7 @@ $(document).ready(function () {
                 url: '/insert/data',
                 success: function (response) {
                     console.log(response);
-                    cleanAlert();
+                    cleanAlert(true);
 
                     $("#insert_alert").append("<div class='alert alert-success alert-dismissible fade in'" +
                         "id='file_size_alert_window'>"
@@ -22,7 +22,7 @@ $(document).ready(function () {
                 },
                 error: function (response) {
                     console.log(response.responseText);
-                    cleanAlert();
+                    cleanAlert(true);
 
                     switch(response.responseText) {
                         case "Duplicate":
@@ -57,18 +57,25 @@ $(document).ready(function () {
                 type: 'POST',
                 url: '/delete/data',
                 success: function (response) {
-                    console.log(response);
-                    cleanAlert();
+                    cleanAlert(false);
 
-                    $("#delete_alert").append("<div class='alert alert-success alert-dismissible fade in'" +
-                        "id='file_size_alert_window'>"
-                        + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
-                        + "</a><strong>" + "Success! " + "</strong>" + "The tuple was inserted!"
-                        + "</div>");
+                    if (response.affectedRows === 0) {
+                        $("#delete_alert").append("<div class='alert alert-info alert-dismissible fade in'" +
+                            "id='file_size_alert_window'>"
+                            + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
+                            + "</a><strong>" + "Info! " + "</strong>" + "The deletion affected no row."
+                            + "</div>");
+                    }else {
+                        $("#delete_alert").append("<div class='alert alert-success alert-dismissible fade in'" +
+                            "id='file_size_alert_window'>"
+                            + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
+                            + "</a><strong>" + "Success! " + "</strong>" + "The deletion affected "+response.affectedRows+" rows."
+                            + "</div>");
+                    }
                 },
                 error: function (response) {
                     console.log(response.responseText);
-                    cleanAlert();
+                    cleanAlert(false);
 
                     switch(response.responseText) {
                         case "Duplicate":
@@ -144,15 +151,27 @@ function getFormElements(tableNumber, insert) {
     }
 }
 
-function cleanAlert() {
-    $("#insert_alert div").each(function() {
-        this.remove();
-    });
-    $("#insert_alert a").each(function() {
-        this.remove();
-    });
-    $("#insert_alert strong").each(function() {
-        this.remove();
-    });
+function cleanAlert(insert) {
+    if (insert) {
+        $("#insert_alert div").each(function() {
+            this.remove();
+        });
+        $("#insert_alert a").each(function() {
+            this.remove();
+        });
+        $("#insert_alert strong").each(function() {
+            this.remove();
+        });
+    } else {
+        $("#delete_alert div").each(function() {
+            this.remove();
+        });
+        $("#delete_alert a").each(function() {
+            this.remove();
+        });
+        $("#delete_alert strong").each(function() {
+            this.remove();
+        })
+    }
 }
 

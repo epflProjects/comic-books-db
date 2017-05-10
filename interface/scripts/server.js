@@ -222,14 +222,18 @@ app.post('/insert/data', function(request, response) {
 app.post('/delete/data', function(request, response) {
     // TODO faire fonction utile qui prend request.body et qui crée la query avec les and
     console.log(request.body);
-    createEndOfQuery(request.body);
-    var query = connection.query("DELETE FROM "+ insert_table_name +" WHERE ?", request.body,
+    var partQuery = createEndOfDeleteQuery(request.body);
+    var query = connection.query("DELETE FROM "+ insert_table_name +" WHERE "+partQuery+";",
     function (error, result, fields) {
         if (error) {
             console.log("Error when deleting a new tuple.");
+            console.log(error.code);
         } else {
             console.log("DELETED!");
-            console.log(result.affectedRows);
+            var jsonFile = {
+                "affectedRows" : result.affectedRows
+            };
+            response.json(jsonFile);
         }
     });
     console.log(query.sql);
@@ -281,10 +285,18 @@ function responseInsertQuery(response, table_name) {
         });
 }
 
-function createEndOfQuery(body) {
-    var query;
-    for (var i in body) {
-        console.log("1 "+ body[i]);
-    }
-}
+function createEndOfDeleteQuery(body) {
+    var queryString = "";
 
+    for (var i in body) {
+
+        if (body[i].length !== 0) {
+            if (queryString.length !== 0) {
+                queryString += " and ";
+            }
+            queryString += i +"='"+ body[i] +"'";
+        }
+    }
+
+    return queryString;
+}
