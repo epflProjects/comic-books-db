@@ -15,8 +15,7 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-// TODO On tente la variable globale
-var insert_table_name
+var insert_table_name;
 
 var port = process.env.PORT || 1337;
 
@@ -35,19 +34,6 @@ connection.connect(function(err) {
 
     console.log('connected as id ' + connection.threadId);
 });
-
-/*app.get('/', function(request, response) {
- connection.query('SELECT I.publication_date, COUNT(*) FROM Issue I GROUP BY I.publication_date HAVING I.publication_date >= 1990;',
- function(error, rows, fields) {
- if (error) {
- console.log("Erreur ma gueule.");
- } else {
- console.log("Query success.");
- console.log(rows);
- response.json(rows);
- }
- });
- });*/
 
 var router = express.Router();
 
@@ -220,10 +206,13 @@ app.post('/insert/data', function(request, response) {
 });
 
 app.post('/delete/data', function(request, response) {
-    // TODO faire fonction utile qui prend request.body et qui crée la query avec les and
-    console.log(request.body);
     var partQuery = createEndOfDeleteQuery(request.body);
-    var query = connection.query("DELETE FROM "+ insert_table_name +" WHERE "+partQuery+";",
+    connection.query("set FOREIGN_KEY_CHECKS=0;", function(error, result, fields) {
+        if (error) {
+            throw error;
+        }
+    });
+    var query = connection.query("DELETE FROM "+ insert_table_name +" WHERE "+partQuery+"",
     function (error, result, fields) {
         if (error) {
             console.log("Error when deleting a new tuple.");
@@ -234,6 +223,13 @@ app.post('/delete/data', function(request, response) {
                 "affectedRows" : result.affectedRows
             };
             response.json(jsonFile);
+        }
+    });
+    connection.query("set FOREIGN_KEY_CHECKS=1;", function(error, result, fields) {
+        if (error) {
+            throw error;
+        } else {
+            response.status(200).send("OK");
         }
     });
     console.log(query.sql);
@@ -250,10 +246,18 @@ app.use(function(req, res, next){
 
 app.listen(port);
 
-// utility functions
+/**
+ * UTILITY FUNCTION
+ */
+
+/**
+ * Handle the response of the constructed query, create the JSON file and send it to the client
+ *
+ * @param rows
+ * @param fields
+ * @param response
+ */
 function responseOfConstructedQuery(rows, fields, response) {
-    console.log(fields.length);
-    console.log("Query success.");
     var attributes_name = [];
     for (var i = 0; i < fields.length; i++) {
         attributes_name.push(fields[i].name);
@@ -266,6 +270,12 @@ function responseOfConstructedQuery(rows, fields, response) {
     response.json(jsonFile);
 }
 
+/**
+ * Handle the response the insert query, create the JSON file and send it to the client
+ *
+ * @param response
+ * @param table_name
+ */
 function responseInsertQuery(response, table_name) {
     connection.query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='Comic-books' AND `TABLE_NAME`='"+ table_name +"';",
         function (error, rows, fields) {
@@ -285,6 +295,12 @@ function responseInsertQuery(response, table_name) {
         });
 }
 
+/**
+ * Create dynamically the 'WHERE' part of the delete query
+ *
+ * @param body       the request body
+ * @returns {string}
+ */
 function createEndOfDeleteQuery(body) {
     var queryString = "";
 
@@ -294,7 +310,13 @@ function createEndOfDeleteQuery(body) {
             if (queryString.length !== 0) {
                 queryString += " and ";
             }
-            queryString += i +"='"+ body[i] +"'";
+            var value = parseInt(body[i]);
+            if (isNaN(value)) {
+                queryString += i +"='"+ body[i] +"'";
+            } else {
+                queryString += i +"= "+body[i] +"";
+            }
+
         }
     }
 

@@ -1,4 +1,9 @@
+/**
+ * INSERT/DELETE
+ */
+
 $(document).ready(function () {
+    // insert part
     $("#insert_search_by").change(function () {
         var dropdownValue = parseInt(jQuery(this).val());
 
@@ -45,6 +50,7 @@ $(document).ready(function () {
         });
     });
 
+    // delete part
     $("#delete_search_by").change(function () {
         var dropdownValue = parseInt(jQuery(this).val());
 
