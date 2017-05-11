@@ -7,11 +7,24 @@ $(document).ready(function () {
         constructedQuery();
     });
 
-    $("#search_button").submit(function(e) {
+    $("#search_button").click(function(e) {
         e.preventDefault();
-        console.log("Enter in submit");
-        var my_select = $('select[multiple].chosen-select-no-results').get(0);
-        console.log(my_select);
+        var selectedTables = $("#search_tables").chosen().val();
+        var searchText = $("#search").val();
+        var dataToSend = {"txt": searchText, "tables": selectedTables};
+        if (searchText.length !== 0) {
+            $.ajax({
+                data: dataToSend,
+                type: 'POST',
+                url: 'search/',
+                success: function (response) {
+                    console.log(response);
+                },
+                error: function(response) {
+                    console.log(response);
+                }
+            });
+        }
     });
 
     $(".chosen-select-no-results").chosen({no_results_text: "Oops, nothing found!"});

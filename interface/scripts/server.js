@@ -41,6 +41,44 @@ app.get('/', function(request, response) {
     response.sendFile('/index.html');
 });
 
+app.post('/search', function(request, response) {
+    console.log(request.body);
+    var fromPart = createSearchFromPart(request.body.tables);
+    //var wherePart = createSearchWherePart(request.body.txt, request.body.tables);
+    var tables = request.body.tables;
+    var txt = request.body.txt;
+    var queryString = "";
+    var containText = "'"+"%"+txt+"%"+"'";
+
+    for (var i in tables) {
+        connection.query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='Comic-books' AND `TABLE_NAME`='"+ toTableName(tables[i]) +"';",
+            function(error, result, fields) {
+                if (error) {
+                    console.log("Error in createSearchWherePart function.");
+                } else {
+                    for (var j in result) {
+                        if (queryString.length !== 0) {
+                            queryString += " or ";
+                        }
+                        queryString += result[j]["COLUMN_NAME"]+"="+containText;
+                    }
+                }
+            });
+    }
+    setTimeout(function() {
+        connection.query("SELECT * FROM "+fromPart+" WHERE "+queryString,
+        function(error, result, fields) {
+           if (error) {
+               console.log("Error in callback function of search part.");
+               console.log(error.code);
+           } else {
+               console.log(result);
+               responseOfConstructedQuery(result, fields, response);
+           }
+        });
+    }, 200);
+});
+
 app.get('/constructed', function(request, response) {
     if (request.query.q === 'belgian') {
         connection.query("SELECT BG.name FROM Brand_Group BG WHERE BG.publisher_id IN (SELECT P.id FROM Publisher P JOIN Indicia_Publisher IP ON IP.publisher_id=P.id WHERE IP.id IN (SELECT IP.id FROM Indicia_Publisher IP WHERE IP.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Belgium')));",
@@ -249,6 +287,121 @@ app.listen(port);
 /**
  * UTILITY FUNCTION
  */
+
+/**
+ *
+ * @param txt
+ * @param tables
+ * @returns {string}
+ */
+/*function createSearchWherePart(txt, tables) {
+    var queryString = "";
+    var containText = "'%"+txt+"%'";
+
+    for (var i in tables) {
+        connection.query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='Comic-books' AND `TABLE_NAME`='"+ toTableName(tables[i]) +"';",
+        function(error, result, fields) {
+            if (error) {
+                console.log("Error in createSearchWherePart function.");
+            } else {
+                for (var j in result) {
+                    if (queryString.length !== 0) {
+                        queryString += " or ";
+                    }
+                    queryString += result[j]["COLUMN_NAME"]+"="+containText;
+                }
+            }
+        });
+    }
+    return setTimeout(function(){ return queryString;}, 500);
+}*/
+
+/**
+ *
+ * @param tables
+ * @returns {string}
+ */
+function createSearchFromPart(tables) {
+    var queryString = "";
+
+    for (var i in tables) {
+        if (queryString.length !== 0) {
+            queryString += ", ";
+        }
+        queryString += toTableName(tables[i]);
+    }
+    return queryString;
+}
+
+/**
+ * From index to table name
+ *
+ * @param table
+ * @returns {*}
+ */
+function toTableName(table) {
+    switch(table) {
+        case '0':
+            return "Artist";
+            break;
+        case '1':
+            return "Brand_Group";
+            break;
+        case '2':
+            return "Character_";
+            break;
+        case '3':
+            return "characters";
+            break;
+        case '4':
+            return "colors";
+            break;
+        case '5':
+            return "Country";
+            break;
+        case '6':
+            return "Indicia_Publisher";
+            break;
+        case '7':
+            return "inks";
+            break;
+        case '8':
+            return "Issue";
+            break;
+        case '9':
+            return "issue_reprint";
+            break;
+        case '10':
+            return "Language";
+            break;
+        case '11':
+            return "pencils";
+            break;
+        case '12':
+            return "Publisher";
+            break;
+        case '13':
+            return "script";
+            break;
+        case '14':
+            return "Series";
+            break;
+        case '15':
+            return "Series_Publication_Type";
+            break;
+        case '16':
+            return "Story";
+            break;
+        case '17':
+            return "story_reprint";
+            break;
+        case '18':
+            return "Story_Type";
+            break;
+        default:
+            return "";
+    }
+}
 
 /**
  * Handle the response of the constructed query, create the JSON file and send it to the client
