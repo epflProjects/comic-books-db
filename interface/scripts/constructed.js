@@ -27,6 +27,9 @@ function queryResult(httpQuery) {
     $("#output_table tr").each(function() {
         this.remove();
     });
+    $("#output_table th").each(function() {
+        this.remove();
+    });
     $("#output_table td").each(function() {
         this.remove();
     });
