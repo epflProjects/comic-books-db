@@ -35,48 +35,40 @@ connection.connect(function(err) {
     console.log('connected as id ' + connection.threadId);
 });
 
-var router = express.Router();
+const router = express.Router();
 
 app.get('/', function(request, response) {
     response.sendFile('/index.html');
 });
 
 app.post('/search', function(request, response) {
-    console.log(request.body);
-    var fromPart = createSearchFromPart(request.body.tables);
+    const fromPart = createSearchFromPart(request.body.tables);
     //var wherePart = createSearchWherePart(request.body.txt, request.body.tables);
-    var tables = request.body.tables;
-    var txt = request.body.txt;
-    var queryString = "";
-    var containText = "'"+"%"+txt+"%"+"'";
+    const tables = request.body.tables;
+    const txt = request.body.txt;
+    let queryString = "";
+    let containText = "'"+"%"+txt+"%"+"'";
+    runGenerator(function* () {
+        for (let i in tables) {
+            let result = yield retrieveAttributes(tables[i]);
+            for (let j in result) {
+                if (queryString.length !== 0) {
+                    queryString += " or ";
+                }
+                queryString += result[j]["COLUMN_NAME"]+"="+containText;
+            }
+        }
 
-    for (var i in tables) {
-        connection.query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='Comic-books' AND `TABLE_NAME`='"+ toTableName(tables[i]) +"';",
+        connection.query("SELECT * FROM "+fromPart+" WHERE "+queryString,
             function(error, result, fields) {
                 if (error) {
-                    console.log("Error in createSearchWherePart function.");
+                    console.log("Error in the main Search query.");
+                    console.log(error.code);
                 } else {
-                    for (var j in result) {
-                        if (queryString.length !== 0) {
-                            queryString += " or ";
-                        }
-                        queryString += result[j]["COLUMN_NAME"]+"="+containText;
-                    }
+                    console.log(result);
                 }
             });
-    }
-    setTimeout(function() {
-        connection.query("SELECT * FROM "+fromPart+" WHERE "+queryString,
-        function(error, result, fields) {
-           if (error) {
-               console.log("Error in callback function of search part.");
-               console.log(error.code);
-           } else {
-               console.log(result);
-               responseOfConstructedQuery(result, fields, response);
-           }
-        });
-    }, 200);
+    });
 });
 
 app.get('/constructed', function(request, response) {
@@ -455,15 +447,15 @@ function responseInsertQuery(response, table_name) {
  * @returns {string}
  */
 function createEndOfDeleteQuery(body) {
-    var queryString = "";
+    let queryString = "";
 
-    for (var i in body) {
+    for (let i in body) {
 
         if (body[i].length !== 0) {
             if (queryString.length !== 0) {
                 queryString += " and ";
             }
-            var value = parseInt(body[i]);
+            let value = parseInt(body[i]);
             if (isNaN(value)) {
                 queryString += i +"='"+ body[i] +"'";
             } else {
@@ -474,4 +466,40 @@ function createEndOfDeleteQuery(body) {
     }
 
     return queryString;
+}
+
+/**
+ * retrieve the attributes of a given table using a Promise object
+ *
+ * @param table
+ * @returns {Promise}
+ */
+function retrieveAttributes(table) {
+    return new Promise(function (resolve, reject) {
+        connection.query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='Comic-books' AND `TABLE_NAME`='"+ toTableName(table) +"';",
+            function(error, result, fields) {
+                if (error) {
+                    console.log("Error in createSearchWherePart function.");
+                    reject(error.code);
+                } else {
+                    resolve(result);
+                }
+            });
+    });
+}
+
+/**
+ * Function to control the generator function's iterator
+ *
+ * @param g    generator function
+ */
+function runGenerator(g) {
+    let iterator = g();
+    (function iterate(message) {
+        let ret = iterator.next(message);
+
+        if (!ret.done) {
+            ret.value.then(iterate);
+        }
+    })();
 }
