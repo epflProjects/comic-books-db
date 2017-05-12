@@ -55,17 +55,27 @@ app.post('/search', function(request, response) {
                 if (queryString.length !== 0) {
                     queryString += " or ";
                 }
-                queryString += result[j]["COLUMN_NAME"]+"="+containText;
+                queryString += toTableName(tables[i])+"."+result[j]["COLUMN_NAME"]+" like "+containText;
             }
         }
-
-        connection.query("SELECT * FROM "+fromPart+" WHERE "+queryString,
-            function(error, result, fields) {
+        console.log(queryString);
+        connection.query("SELECT * FROM "+fromPart+" WHERE "+queryString+" LIMIT 100",
+            function(error, results, fields) {
                 if (error) {
                     console.log("Error in the main Search query.");
                     console.log(error.code);
                 } else {
-                    console.log(result);
+                    console.log(results);
+                    let attributes_name = [];
+                    for (let i = 0; i < fields.length; i++) {
+                        attributes_name.push(fields[i].name);
+                    }
+                    const jsonFile = {
+                        "attributes_name" : attributes_name,
+                        "rows" : results
+                    };
+                    console.log(jsonFile);
+                    response.json(jsonFile);
                 }
             });
     });
@@ -427,11 +437,11 @@ function responseInsertQuery(response, table_name) {
             if (error) {
                 console.log("Error in insert query.");
             } else {
-                var attributes_name = [];
-                for (var i = 0; i < fields.length; i++) {
+                let attributes_name = [];
+                for (let i = 0; i < fields.length; i++) {
                     attributes_name.push(fields[i].name);
                 }
-                var jsonFile = {
+                const jsonFile = {
                     "attributes_name" : attributes_name,
                     "rows" : rows
                 };

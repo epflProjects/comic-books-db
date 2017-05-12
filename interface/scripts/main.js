@@ -18,9 +18,40 @@ $(document).ready(function () {
                 type: 'POST',
                 url: 'search/',
                 success: function (response) {
-                    console.log(response);
+                    // "clean" the table
+                    $("#output_table tr").each(function() {
+                        this.remove();
+                    });
+                    $("#output_table th").each(function() {
+                        this.remove();
+                    });
+                    $("#output_table td").each(function() {
+                        this.remove();
+                    });
+
+                    const table = $("#output_table");
+                    let stringToAppend;
+
+                    table.append("<thead>");
+                    stringToAppend = "<tr>";
+                    for (let i in response.attributes_name) {
+                        stringToAppend += "<th>"+response.attributes_name[i]+"</th>";
+                    }
+                    stringToAppend += "</tr>";
+                    table.append(stringToAppend);
+                    table.append("</thead>");
+
+                    for (let i in response.rows) {
+                        stringToAppend = "<tr>";
+                        for (let j in response.attributes_name) {
+                            stringToAppend += "<td>"+response.rows[i][response.attributes_name[j]]+"</td>";
+                        }
+                        stringToAppend += "</tr>";
+                        table.append(stringToAppend);
+                    }
                 },
                 error: function(response) {
+                    // TODO handle the errors
                     console.log(response);
                 }
             });

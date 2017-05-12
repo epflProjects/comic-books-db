@@ -35,21 +35,21 @@ function queryResult(httpQuery) {
     });
 
     $.get('constructed?q='+httpQuery, function(data) {
-        var table = $("#output_table");
-        var stringToAppend;
+        const table = $("#output_table");
+        let stringToAppend;
 
         table.append("<thead>");
         stringToAppend = "<tr>";
-        for (var i in data.attributes_name) {
+        for (let i in data.attributes_name) {
             stringToAppend += "<th>"+data.attributes_name[i]+"</th>";
         }
         stringToAppend += "</tr>";
         table.append(stringToAppend);
         table.append("</thead>");
 
-        for (var i in data.rows) {
+        for (let i in data.rows) {
             stringToAppend = "<tr>";
-            for (var j in data.attributes_name) {
+            for (let j in data.attributes_name) {
                 stringToAppend += "<td>"+data.rows[i][data.attributes_name[j]]+"</td>";
             }
             stringToAppend += "</tr>";
