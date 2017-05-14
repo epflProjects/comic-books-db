@@ -5,16 +5,6 @@
  */
 
 $(document).ready(function () {
-    // Output Table Initialisation
-    $("#output_table").DataTable({
-        bSort:false,
-        paging: false,
-        searching: false,
-        autoWidth: true,
-        scrollX: true,
-        scrollY: 800,
-        aoColumns: [ {bSearchable: false, bSortable: false } ]
-    });
     // Constructed Query
     $("#constructed_query_table").click(function() {
         constructedQuery();
@@ -33,44 +23,70 @@ $(document).ready(function () {
                 url: 'search/',
                 success: function (response) {
                     // "clean" the table
+                    const table = $("#output_table");
+                    if ($.fn.dataTable.isDataTable(table)) {
+                        table.DataTable().destroy();
+                        table.empty();
+                    }
+                    $("#output_table_head th").each(function () {
+                        this.remove();
+                    });
+                    $("#output_table_body td").each(function () {
+                        this.remove();
+                    });
+                    $("#output_table_head tr").each(function () {
+                        this.remove();
+                    });
+                    $("#output_table_body tr").each(function () {
+                        this.remove();
+                    });
                     $("#output_table thead").each(function () {
                         this.remove();
                     });
-                    $("output_table tbody").each(function () {
-                        this.remove();
-                    });
-                    $("#output_table tr").each(function () {
-                        this.remove();
-                    });
-                    $("#output_table th").each(function () {
-                        this.remove();
-                    });
-                    $("#output_table td").each(function () {
+                    $("#output_table tbody").each(function () {
                         this.remove();
                     });
 
-                    const table = $("#output_table");
+                    table.append("<thead id='output_table_head'></thead>");
+                    table.append("<tbody id='output_table_body'></tbody>");
+
+                    const tableH = $("#output_table_head");
+                    const tableB = $("#output_table_body");
                     let stringToAppend;
 
-                    table.append("<thead>");
                     stringToAppend = "<tr>";
                     for (let i in response.attributes_name) {
                         stringToAppend += "<th>"+response.attributes_name[i]+"</th>";
                     }
                     stringToAppend += "</tr>";
-                    table.append(stringToAppend);
-                    table.append("</thead>");
-                    table.append("<tbody>");
+                    tableH.append(stringToAppend);
+
                     for (let i in response.rows) {
                         stringToAppend = "<tr>";
                         for (let j in response.attributes_name) {
                             stringToAppend += "<td>"+response.rows[i][response.attributes_name[j]]+"</td>";
                         }
                         stringToAppend += "</tr>";
-                        table.append(stringToAppend);
+                        tableB.append(stringToAppend);
                     }
-                    table.append("</tbody>");
 
+                    // Output Table Initialisation
+                    $("#output_table").DataTable({
+                        bSort:false,
+                        paging: true,
+                        _fixedHeader: true,
+                        searching: false,
+                        autoWidth: true,
+                        bdeferRender: true,
+                        bscrollCollapse: true,
+                        scrollX: "50vh",
+                        scrollY: "30vh",
+                        scroller: true,
+                        overflow: "auto",
+                        aoColumnDefs: [
+                            {"bSearchable": false, "aTargets": ['_all']},
+                            {"bSortable": false, "aTargets": ['_all']} ]
+                    });
                 },
                 error: function(response) {
                     // TODO handle the errors
