@@ -1,8 +1,19 @@
 /**
+ *
  * CLIENT
+ *
  */
 
 $(document).ready(function () {
+    $("#output_table").DataTable({
+        bSort:false,
+        paging: false,
+        searching: false,
+        autoWidth: true,
+        scrollX: true,
+        scrollY: 800,
+        aoColumns: [ {bSearchable: false, bSortable: false } ]
+    });
     // Constructed Query
     $("#constructed_query_table").click(function() {
         constructedQuery();
@@ -21,13 +32,19 @@ $(document).ready(function () {
                 url: 'search/',
                 success: function (response) {
                     // "clean" the table
-                    $("#output_table tr").each(function() {
+                    $("#output_table thead").each(function () {
                         this.remove();
                     });
-                    $("#output_table th").each(function() {
+                    $("output_table tbody").each(function () {
                         this.remove();
                     });
-                    $("#output_table td").each(function() {
+                    $("#output_table tr").each(function () {
+                        this.remove();
+                    });
+                    $("#output_table th").each(function () {
+                        this.remove();
+                    });
+                    $("#output_table td").each(function () {
                         this.remove();
                     });
 
@@ -42,7 +59,7 @@ $(document).ready(function () {
                     stringToAppend += "</tr>";
                     table.append(stringToAppend);
                     table.append("</thead>");
-
+                    table.append("<tbody>");
                     for (let i in response.rows) {
                         stringToAppend = "<tr>";
                         for (let j in response.attributes_name) {
@@ -51,6 +68,8 @@ $(document).ready(function () {
                         stringToAppend += "</tr>";
                         table.append(stringToAppend);
                     }
+                    table.append("</tbody>");
+
                 },
                 error: function(response) {
                     // TODO handle the errors

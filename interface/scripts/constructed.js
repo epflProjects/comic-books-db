@@ -32,17 +32,23 @@ function constructedQuery() {
  */
 function queryResult(httpQuery) {
     // "clean" the table
-    $("#output_table tr").each(function() {
+    $("#output_table thead").each(function () {
         this.remove();
     });
-    $("#output_table th").each(function() {
+    $("#output_table tbody").each(function () {
+
+    });
+    $("#output_table tr").each(function () {
         this.remove();
     });
-    $("#output_table td").each(function() {
+    $("#output_table th").each(function () {
+        this.remove();
+    });
+    $("#output_table td").each(function () {
         this.remove();
     });
 
-    $.get('constructed?q='+httpQuery, function(data) {
+    $.get('constructed?q='+httpQuery, function (data) {
         const table = $("#output_table");
         let stringToAppend;
 
@@ -54,7 +60,7 @@ function queryResult(httpQuery) {
         stringToAppend += "</tr>";
         table.append(stringToAppend);
         table.append("</thead>");
-
+        table.append("<tbody>");
         for (let i in data.rows) {
             stringToAppend = "<tr>";
             for (let j in data.attributes_name) {
@@ -63,5 +69,6 @@ function queryResult(httpQuery) {
             stringToAppend += "</tr>";
             table.append(stringToAppend);
         }
+        table.append("</tbody>");
     });
 }

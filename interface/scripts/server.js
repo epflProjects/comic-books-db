@@ -69,7 +69,7 @@ app.post('/search', function(request, response) {
             }
         }
 
-        connection.query("SELECT * FROM "+fromPart+" WHERE "+queryString+" LIMIT 100",
+        connection.query("SELECT * FROM "+fromPart+" WHERE "+queryString+" LIMIT 500",
             function(error, results, fields) {
                 if (error) {
                     console.log("Error in the main Search query.");

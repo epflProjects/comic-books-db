@@ -18,12 +18,19 @@
     <!-- Chosen jQuery Stylesheet -->
     <link href="styles/ext/chosen.min.css" rel="stylesheet">
 
+    <!-- DataTables Stylesheet -->
+    <link rel="stylesheet" type="text/css" href="styles/ext/datatables.min.css"/>
+
+
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="scripts/ext/jquery.js"></script>
 
     <!-- Chosen jQuery -->
     <script src="scripts/ext/chosen.jquery.min.js"></script>
+
+    <!-- DataTables -->
+    <script type="text/javascript" src="scripts/ext/datatables.min.js"></script>
 
 </head>
 <body>
@@ -94,7 +101,7 @@
                     <!-- Output Table -->
                     <div id="result_part">
                         <h3>Result</h3>
-                        <div>
+                        <div id="datatable">
                             <table class="table table-bordered table-striped table-responsive" id="output_table"></table>
                         </div>
                     </div>
@@ -137,10 +144,9 @@
 </div>
 
 
-<!-- javascript -->
+<!-- JavaScript -->
 <script src="scripts/main.js"></script>
 <script src="scripts/constructed.js"></script>
-<script src="scripts/search.js"></script>
 
 <!-- Bootstrap core JavaScript
 ================================================== -->
