@@ -5,6 +5,7 @@
  */
 
 $(document).ready(function () {
+    // Output Table Initialisation
     $("#output_table").DataTable({
         bSort:false,
         paging: false,
