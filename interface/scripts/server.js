@@ -1,10 +1,16 @@
-var express = require('express');
-var mysql = require('mysql');
-var path = require('path');
-var http = require('http');
-var bodyParser = require('body-parser');
+/**
+ *
+ * SERVER
+ *
+ */
 
-var app = express();
+const express = require('express');
+const mysql = require('mysql');
+const path = require('path');
+const http = require('http');
+const bodyParser = require('body-parser');
+
+const app = express();
 app.use(express.static(__dirname+'/../views'));
 app.use(express.static(__dirname+'/../scripts'));
 app.use('/bootstrap', express.static(path.join(__dirname+'/../styles/framework/bootstrap-3.3.7/')));
@@ -15,11 +21,11 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-var insert_table_name;
+let insert_table_name;
 
-var port = process.env.PORT || 1337;
+let port = process.env.PORT || 1337;
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host     : 'localhost',
     user     : 'root',
     password : '528491',
@@ -37,17 +43,21 @@ connection.connect(function(err) {
 
 const router = express.Router();
 
+/**
+ * Response to GET and POST http requests
+ */
+
 app.get('/', function(request, response) {
     response.sendFile('/index.html');
 });
 
 app.post('/search', function(request, response) {
     const fromPart = createSearchFromPart(request.body.tables);
-    //var wherePart = createSearchWherePart(request.body.txt, request.body.tables);
     const tables = request.body.tables;
     const txt = request.body.txt;
     let queryString = "";
     let containText = "'"+"%"+txt+"%"+"'";
+
     runGenerator(function* () {
         for (let i in tables) {
             let result = yield retrieveAttributes(tables[i]);
@@ -58,14 +68,13 @@ app.post('/search', function(request, response) {
                 queryString += toTableName(tables[i])+"."+result[j]["COLUMN_NAME"]+" like "+containText;
             }
         }
-        console.log(queryString);
+
         connection.query("SELECT * FROM "+fromPart+" WHERE "+queryString+" LIMIT 100",
             function(error, results, fields) {
                 if (error) {
                     console.log("Error in the main Search query.");
                     console.log(error.code);
                 } else {
-                    console.log(results);
                     let attributes_name = [];
                     for (let i = 0; i < fields.length; i++) {
                         attributes_name.push(fields[i].name);
@@ -74,7 +83,6 @@ app.post('/search', function(request, response) {
                         "attributes_name" : attributes_name,
                         "rows" : results
                     };
-                    console.log(jsonFile);
                     response.json(jsonFile);
                 }
             });
@@ -223,9 +231,7 @@ app.get('/insert', function(request, response) {
 });
 
 app.post('/insert/data', function(request, response) {
-    console.log(request.body);
-    console.log(insert_table_name);
-    var query = connection.query("INSERT INTO "+insert_table_name +" SET ?", request.body,
+    connection.query("INSERT INTO "+insert_table_name +" SET ?", request.body,
     function (error, results, fields) {
         if (error) {
             console.log("Error when inserting a new tuple.");
@@ -233,6 +239,9 @@ app.post('/insert/data', function(request, response) {
             switch (error.code) {
                 case "ER_DUP_ENTRY":
                     response.status(502).send("Duplicate");
+                    break;
+                case "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD":
+                    response.status(502).send("Type");
                     break;
                 default:
                     response.status(404).send("zut");
@@ -242,37 +251,35 @@ app.post('/insert/data', function(request, response) {
             response.status(200).send("OK");
         }
     });
-    console.log(query.sql);
 });
 
 app.post('/delete/data', function(request, response) {
-    var partQuery = createEndOfDeleteQuery(request.body);
+    let partQuery = createEndOfDeleteQuery(request.body);
     connection.query("set FOREIGN_KEY_CHECKS=0;", function(error, result, fields) {
         if (error) {
             throw error;
         }
     });
-    var query = connection.query("DELETE FROM "+ insert_table_name +" WHERE "+partQuery+"",
+
+    connection.query("DELETE FROM "+ insert_table_name +" WHERE "+partQuery+"",
     function (error, result, fields) {
         if (error) {
             console.log("Error when deleting a new tuple.");
-            console.log(error.code);
         } else {
             console.log("DELETED!");
-            var jsonFile = {
+            const jsonFile = {
                 "affectedRows" : result.affectedRows
             };
             response.json(jsonFile);
         }
     });
+
     connection.query("set FOREIGN_KEY_CHECKS=1;", function(error, result, fields) {
         if (error) {
+            console.log("pipi");
             throw error;
-        } else {
-            response.status(200).send("OK");
         }
     });
-    console.log(query.sql);
 });
 
 app.get('about.html', function(request, response) {
@@ -291,42 +298,15 @@ app.listen(port);
  */
 
 /**
- *
- * @param txt
- * @param tables
- * @returns {string}
- */
-/*function createSearchWherePart(txt, tables) {
-    var queryString = "";
-    var containText = "'%"+txt+"%'";
-
-    for (var i in tables) {
-        connection.query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='Comic-books' AND `TABLE_NAME`='"+ toTableName(tables[i]) +"';",
-        function(error, result, fields) {
-            if (error) {
-                console.log("Error in createSearchWherePart function.");
-            } else {
-                for (var j in result) {
-                    if (queryString.length !== 0) {
-                        queryString += " or ";
-                    }
-                    queryString += result[j]["COLUMN_NAME"]+"="+containText;
-                }
-            }
-        });
-    }
-    return setTimeout(function(){ return queryString;}, 500);
-}*/
-
-/**
+ * Create the String for the 'FROM' part of the Search query
  *
  * @param tables
  * @returns {string}
  */
 function createSearchFromPart(tables) {
-    var queryString = "";
+    let queryString = "";
 
-    for (var i in tables) {
+    for (let i in tables) {
         if (queryString.length !== 0) {
             queryString += ", ";
         }
@@ -413,11 +393,11 @@ function toTableName(table) {
  * @param response
  */
 function responseOfConstructedQuery(rows, fields, response) {
-    var attributes_name = [];
-    for (var i = 0; i < fields.length; i++) {
+    let attributes_name = [];
+    for (let i = 0; i < fields.length; i++) {
         attributes_name.push(fields[i].name);
     }
-    var jsonFile = {
+    const jsonFile = {
         "table_name" : fields[0].orgTable,
         "attributes_name" : attributes_name,
         "rows" : rows

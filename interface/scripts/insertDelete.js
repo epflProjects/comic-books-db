@@ -5,12 +5,13 @@
 $(document).ready(function () {
     // insert part
     $("#insert_search_by").change(function () {
-        var dropdownValue = parseInt(jQuery(this).val());
+        const dropdownValue = parseInt(jQuery(this).val());
 
         getFormElements(dropdownValue, true);
 
         $("#insert_form").submit(function (e) {
             e.preventDefault();
+
             $.ajax({
                 data: $(this).serialize(),
                 type: 'POST',
@@ -37,6 +38,13 @@ $(document).ready(function () {
                             + "</a><strong>" + "Warning! " + "</strong>" + "The tuple already exists!"
                             + "</div>");
                             break;
+                        case "Type":
+                            $("#insert_alert").append("<div class='alert alert-warning alert-dismissible fade in'" +
+                                "id='file_size_alert_window'>"
+                                + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
+                                + "</a><strong>" + "Warning! " + "</strong>" + "One or more fields have wrong types!"
+                                + "</div>");
+                            break;
                         default:
                             $("#insert_alert").append("<div class='alert alert-warning alert-dismissible fade in'" +
                                 "id='file_size_alert_window'>"
@@ -52,12 +60,13 @@ $(document).ready(function () {
 
     // delete part
     $("#delete_search_by").change(function () {
-        var dropdownValue = parseInt(jQuery(this).val());
+        const dropdownValue = parseInt(jQuery(this).val());
 
         getFormElements(dropdownValue, false);
 
         $("#delete_form").submit(function (e) {
             e.preventDefault();
+
             $.ajax({
                 data: $(this).serialize(),
                 type: 'POST',
@@ -80,7 +89,6 @@ $(document).ready(function () {
                     }
                 },
                 error: function (response) {
-                    console.log(response.responseText);
                     cleanAlert(false);
 
                     switch(response.responseText) {
@@ -91,6 +99,13 @@ $(document).ready(function () {
                                 + "</a><strong>" + "Warning! " + "</strong>" + "The tuple already exists!"
                                 + "</div>");
                             break;
+                        case "Type":
+                            $("#delete_alert").append("<div class='alert alert-warning alert-dismissible fade in'" +
+                                "id='file_size_alert_window'>"
+                                + "<a href='#' class='close' data-dismiss='alert' aria-label='close'>" + "&times;"
+                                + "</a><strong>" + "Warning! " + "</strong>" + "One or more fields have a wrong type!"
+                                + "</div>");
+                                break;
                         default:
                             $("#delete_alert").append("<div class='alert alert-warning alert-dismissible fade in'" +
                                 "id='file_size_alert_window'>"
@@ -105,6 +120,12 @@ $(document).ready(function () {
     })
 });
 
+/**
+ * Retrieve the arguments of a table
+ *
+ * @param tableNumber
+ * @param insert       if true concerns Insert part, otherwise concerns Delete part
+ */
 function getFormElements(tableNumber, insert) {
     if (insert) {
         // clean the last form
@@ -122,9 +143,8 @@ function getFormElements(tableNumber, insert) {
         });
 
         $.get('insert?q='+tableNumber, function(data) {
-            var form = $("#insert_form");
-            console.log(data);
-            for (var i in data.rows) {
+            let form = $("#insert_form");
+            for (let i in data.rows) {
                 form.append("<label>"+ data.rows[i][data.attributes_name[0]] +"</label><input class='form-control' name='"+data.rows[i][data.attributes_name[0]]+"' type='txt' required>")
             }
             form.append("<br>");
@@ -146,9 +166,8 @@ function getFormElements(tableNumber, insert) {
         });
 
         $.get('insert?q='+tableNumber, function(data) {
-            var form = $("#delete_form");
-            console.log(data);
-            for (var i in data.rows) {
+            let form = $("#delete_form");
+            for (let i in data.rows) {
                 form.append("<label>"+ data.rows[i][data.attributes_name[0]] +"</label><input class='form-control' name='"+data.rows[i][data.attributes_name[0]]+"' type='txt'>")
             }
             form.append("<br>");
@@ -157,6 +176,11 @@ function getFormElements(tableNumber, insert) {
     }
 }
 
+/**
+ * Clean the alert, if there is an existing one
+ *
+ * @param insert
+ */
 function cleanAlert(insert) {
     if (insert) {
         $("#insert_alert div").each(function() {

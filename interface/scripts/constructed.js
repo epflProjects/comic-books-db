@@ -2,6 +2,9 @@
  * Constructed Query
  */
 
+/**
+ * Take care of constructed query
+ */
 function constructedQuery() {
     if ($(event.target).is("#given_search_brand_group")) {
         queryResult('belgian');
@@ -22,6 +25,11 @@ function constructedQuery() {
     }
 }
 
+/**
+ * Take care to send and receive a constructed query
+ *
+ * @param httpQuery
+ */
 function queryResult(httpQuery) {
     // "clean" the table
     $("#output_table tr").each(function() {
