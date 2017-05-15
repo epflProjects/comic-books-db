@@ -7,6 +7,10 @@ body {
   /*background: black !important; /*!important force to override*/
 }
 
+#search {
+  width: 300px;
+}
+
 table {
   font-family: helvetica;
   width: 100%;

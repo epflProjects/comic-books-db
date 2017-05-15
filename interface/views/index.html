@@ -68,14 +68,14 @@
     <div class="row">
         <div class="col-md-8">
             <h3>Custom Query</h3>
-                <div class="col-md-6 form-group">
+                <!--<div class="col-md-6 form-group">-->
                     <form class="form-inline">
                     <label for="search" class="sr-only">Search</label>
                     <input type="txt" class="form-control" id="search" placeholder="Search" required>
 
                     in
 
-                    <select data-placeholder="Select table" style="width:275px;" multiple class="chosen-select-no-results" tabindex="11" id="search_tables">
+                    <select data-placeholder="Select table" style="width:300px;" multiple class="chosen-select-no-results" tabindex="11" id="search_tables">
                         <option value=""></option>
                         <option value="0">Artist</option>
                         <option value="1">Brand Group</option>
@@ -98,40 +98,54 @@
                         Search
                     </button>
                     </form>
+                <!--</div>-->
+        </div>
+    </div>
+
+    <br>
+    <br>
+
+    <!-- Constructed Queries Collapse -->
+    <div class="row">
+        <div id="constructed_query" class="panel panel-default">
+            <div class="panel-heading" role="tab" id="heading_one">
+                <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_one" aria-expanded="true" aria-controls="collapse_one">
+                        Constructed Queries
+                    </a>
+                </h4>
+            </div>
+            <div id="collapse_one" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_one">
+                <div class="panel-body">
+                    <table class="table table-hover table-bordered table-responsive" id="constructed_query_table">
+                        <tr>
+                            <th id="given_search_brand_group">The Brand Group names with the highest number of Belgian indicia publishers</th>
+                        </tr>
+                        <tr>
+                            <th id="given_search_danish_publishers">The identities and names of publishers of Danish book series</th>
+                        </tr>
+                        <tr>
+                            <th id="given_search_swiss_series">The names of all Swiss series published in magazines</th>
+                        </tr>
+                        <tr>
+                            <th id="given_search_since_1990">The number of issues published each year since 1990</th>
+                        </tr>
+                        <tr>
+                            <th id="given_search_DC_comics">The number of series for each indicia publisher whose name resembles 'DC comics'</th>
+                        </tr>
+                        <tr>
+                            <th id="given_search_10_most_reprinted">The titles of the 10 most reprinted stories</th>
+                        </tr>
+                        <tr>
+                            <th id="given_search_artists">The artists that have scripted, drawn, and colored at least one of the stories they were involved in</th>
+                        </tr>
+                        <tr>
+                            <th id="given_search_Batman_non_reprinted">All non-reprinted stories involving Batman as a non-featured character</th>
+                        </tr>
+                    </table>
                 </div>
+            </div>
         </div>
-
-        <!-- Given Queries Table -->
-        <div class="col-md-4">
-            <h3>Constructed Queries</h3>
-            <table class="table table-hover table-bordered table-responsive" id="constructed_query_table">
-                <tr>
-                    <th id="given_search_brand_group">The Brand Group names with the highest number of Belgian indicia publishers</th>
-                </tr>
-                <tr>
-                    <th id="given_search_danish_publishers">The identities and names of publishers of Danish book series</th>
-                </tr>
-                <tr>
-                    <th id="given_search_swiss_series">The names of all Swiss series published in magazines</th>
-                </tr>
-                <tr>
-                    <th id="given_search_since_1990">The number of issues published each year since 1990</th>
-                </tr>
-                <tr>
-                    <th id="given_search_DC_comics">The number of series for each indicia publisher whose name resembles 'DC comics'</th>
-                </tr>
-                <tr>
-                    <th id="given_search_10_most_reprinted">The titles of the 10 most reprinted stories</th>
-                </tr>
-                <tr>
-                    <th id="given_search_artists">The artists that have scripted, drawn, and colored at least one of the stories they were involved in</th>
-                </tr>
-                <tr>
-                    <th id="given_search_Batman_non_reprinted">All non-reprinted stories involving Batman as a non-featured character</th>
-                </tr>
-            </table>
-        </div>
-
     </div>
 
     <!-- TODO try something new -->
