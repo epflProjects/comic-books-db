@@ -34,7 +34,7 @@
 
 </head>
 <body>
-<!-- Black topbar -->
+<!-- Black Topbar -->
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
@@ -68,12 +68,11 @@
     <div class="row">
         <div class="col-md-8">
             <h3>Custom Query</h3>
-                <!--<div class="col-md-6 form-group">-->
                     <form class="form-inline">
                     <label for="search" class="sr-only">Search</label>
                     <input type="txt" class="form-control" id="search" placeholder="Search" required>
 
-                    in
+                    <span id="search_in_word">IN</span>
 
                     <select data-placeholder="Select table" style="width:300px;" multiple class="chosen-select-no-results" tabindex="11" id="search_tables">
                         <option value=""></option>
@@ -98,7 +97,6 @@
                         Search
                     </button>
                     </form>
-                <!--</div>-->
         </div>
     </div>
 
@@ -109,11 +107,11 @@
     <div class="row">
         <div id="constructed_query" class="panel panel-default">
             <div class="panel-heading" role="tab" id="heading_one">
-                <h4 class="panel-title">
+                <h3 class="panel-title">
                     <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_one" aria-expanded="true" aria-controls="collapse_one">
                         Constructed Queries
                     </a>
-                </h4>
+                </h3>
             </div>
             <div id="collapse_one" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_one">
                 <div class="panel-body">
@@ -148,20 +146,16 @@
         </div>
     </div>
 
-    <!-- TODO try something new -->
+    <!-- Result Table -->
     <div class="row">
-    <!-- Output Table -->
     <div id="result_part">
         <h3>Result</h3>
         <div id="datatable">
             <table class="table table-bordered table-striped" cellspacing="0" width="100%" id="output_table">
-                <!--<thead id="output_table_head"></thead>
-                <tbody id="output_table_body"></tbody>-->
             </table>
         </div>
     </div>
     </div>
-
 </div>
 
 

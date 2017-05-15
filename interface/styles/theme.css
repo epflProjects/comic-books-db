@@ -11,6 +11,10 @@ body {
   width: 300px;
 }
 
+#search_in_word {
+  font-size: 120%;
+}
+
 table {
   font-family: helvetica;
   width: 100%;
