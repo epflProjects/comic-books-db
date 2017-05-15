@@ -7,7 +7,7 @@ $(document).ready(function () {
     $("#insert_search_by").change(function () {
         const dropdownValue = parseInt(jQuery(this).val());
 
-        getFormElements(dropdownValue, true);
+        getAttributes(dropdownValue, true);
 
         $("#insert_form").submit(function (e) {
             e.preventDefault();
@@ -17,7 +17,6 @@ $(document).ready(function () {
                 type: 'POST',
                 url: '/insert/data',
                 success: function (response) {
-                    console.log(response);
                     cleanAlert(true);
 
                     $("#insert_alert").append("<div class='alert alert-success alert-dismissible fade in'" +
@@ -62,7 +61,7 @@ $(document).ready(function () {
     $("#delete_search_by").change(function () {
         const dropdownValue = parseInt(jQuery(this).val());
 
-        getFormElements(dropdownValue, false);
+        getAttributes(dropdownValue, false);
 
         $("#delete_form").submit(function (e) {
             e.preventDefault();
@@ -126,7 +125,7 @@ $(document).ready(function () {
  * @param tableNumber
  * @param insert       if true concerns Insert part, otherwise concerns Delete part
  */
-function getFormElements(tableNumber, insert) {
+function getAttributes(tableNumber, insert) {
     if (insert) {
         // clean the last form
         $("#insert_form label").each(function() {
