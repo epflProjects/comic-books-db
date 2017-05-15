@@ -162,8 +162,39 @@ app.get('/constructed', function(request, response) {
                     responseOfConstructedQuery(rows, fields, response);
                 }
             });
+    } else if (request.query.q === 'notFrequently') {
+
+    } else if (request.query.q === 'withTypes') {
+
+    } else if (request.query.q === 'alanMoor') {
+
+    } else if (request.query.q === 'natureRelated') {
+
+    } else if (request.query.q === 'three') {
+
+    } else if (request.query.q === 'magazines') {
+
+    } else if (request.query.q === 'italian') {
+
+    } else if (request.query.q === 'cartoon') {
+
+    } else if (request.query.q === 'brandIndicia') {
+
+    } else if (request.query.q === 'seriesLength') {
+
+    } else if (request.query.q === 'singleIssue') {
+
+    } else if (request.query.q === 'scriptWriters') {
+
+    } else if (request.query.q === 'marvel') {
+
+    } else if (request.query.q === 'five') {
+
+    } else if (request.query.q === 'givenIssue') {
+
     }
-});
+    }
+);
 
 app.get('insertDelete.html', function(request, response) {
     response.sendFile('insertDelete.html');
@@ -451,10 +482,8 @@ function createEndOfDeleteQuery(body) {
             } else {
                 queryString += i +"= "+body[i] +"";
             }
-
         }
     }
-
     return queryString;
 }
 

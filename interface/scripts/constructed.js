@@ -22,6 +22,36 @@ function constructedQuery() {
         queryResult('artist');
     } else if ($(event.target).is("#given_search_Batman_non_reprinted")) {
         queryResult('batman');
+    } else if ($(event.target).is("#given_search_highest_number")) {
+        queryResult('notFrequently');
+    } else if ($(event.target).is("#given_search_series_type")) {
+        queryResult('withTypes');
+    } else if ($(event.target).is("#given_search_ten_most_reprinted")) {
+        queryResult('alanMoor');
+    } else if ($(event.target).is("#given_search_nature_related")) {
+        queryResult('natureRelated');
+    } else if ($(event.target).is("#given_search_top_ten_publishers")) {
+        queryResult('three');
+    } else if ($(event.target).is("#given_search_more_10000")) {
+        queryResult('magazines');
+    } else if ($(event.target).is("#given_search_italian")) {
+        queryResult('italian');
+    } else if ($(event.target).is("#given_search_cartoon_stories")) {
+        queryResult('cartoon');
+    } else if ($(event.target).is("#given_search_brand_indicia")) {
+        queryResult('brandIndicia');
+    } else if ($(event.target).is("#given_search_series_length")) {
+        queryResult('seriesLength');
+    } else if ($(event.target).is("#given_search_single_issue")) {
+        queryResult('singleIssue');
+    } else if ($(event.target).is("#given_search_script_writers")) {
+        queryResult('scriptWriters');
+    } else if ($(event.target).is("#given_search_marvel_heroes")) {
+        queryResult('marvel');
+    } else if ($(event.target).is("#given_search_top_5")) {
+        queryResult('five');
+    } else if ($(event.target).is("#given_search_given_issue")) {
+        queryResult('givenIssue');
     }
 }
 
@@ -32,12 +62,6 @@ function constructedQuery() {
  */
 function queryResult(httpQuery) {
     // "clean" the table
-    /*$("#output_table thead").each(function () {
-        this.remove();
-    });
-    $("#output_table tbody").each(function () {
-
-    });*/
     const table = $("#output_table");
     if ($.fn.dataTable.isDataTable(table)) {
         table.DataTable().destroy();
@@ -67,15 +91,12 @@ function queryResult(httpQuery) {
         const tableB = $("#output_table_body");
         let stringToAppend;
 
-        //table.append("<thead>");
         stringToAppend = "<tr>";
         for (let i in data.attributes_name) {
             stringToAppend += "<th>"+data.attributes_name[i]+"</th>";
         }
         stringToAppend += "</tr>";
         tableH.append(stringToAppend);
-        //table.append("</thead>");
-        //table.append("<tbody>");
         for (let i in data.rows) {
             stringToAppend = "<tr>";
             for (let j in data.attributes_name) {
@@ -84,7 +105,7 @@ function queryResult(httpQuery) {
             stringToAppend += "</tr>";
             tableB.append(stringToAppend);
         }
-        //table.append("</tbody>");
+
         // Output Table Initialisation
         $("#output_table").DataTable({
             bSort:false,
