@@ -1,21 +1,18 @@
 -- a)  Print the brand group names with the highest number of Belgian indicia publishers.
 
-SELECT BG.name
-FROM Brand_Group BG
-WHERE BG.publisher_id IN (
-	SELECT P.id
-	FROM Publisher P
-	JOIN Indicia_Publisher IP ON IP.publisher_id=P.id
-	WHERE IP.id IN (
-		SELECT IP.id
-		FROM Indicia_Publisher IP
-		WHERE IP.country_id IN (
-			SELECT C.id
-			FROM Country C
-			WHERE C.name = 'Belgium'
-		)
+SELECT BG.name, COUNT(*)
+FROM (
+	SELECT BG.id, BG.name
+	FROM Brand_Group BG
+	JOIN Indicia_Publisher IP ON IP.publisher_id=BG.publisher_id
+	WHERE IP.country_id IN (
+		SELECT C.id
+		FROM Country C
+		WHERE C.name = 'Belgium'
 	)
-);
+) AS BG
+GROUP BY BG.id
+ORDER BY COUNT(*) DESC;
 
 
 -- b)  Print the ids and names of publishers of Danish book series.
