@@ -26,6 +26,10 @@ WHERE P.id IN (
 		SELECT C.id
 		FROM Country C
 		WHERE C.name = 'Denmark'
+	) AND S.publication_type_id IN (
+		SELECT SPT.id
+		FROM Series_Publication_Type SPT
+		WHERE SPT.name = 'book'
 	)
 );
 
@@ -49,21 +53,18 @@ WHERE S.country_id IN (
 
 SELECT I.publication_date, COUNT(*)
 FROM Issue I
+WHERE I.publication_date >= 1990 AND I.publication_date <=2017
 GROUP BY I.publication_date
-HAVING I.publication_date >= 1990;
+ORDER BY I.publication_date ASC;
 
 
 -- e) Print the number of series for each indicia publisher whose name resembles ‘DC comics’.
 
-SELECT IP.name
-FROM Indicia_Publisher IP
-JOIN Publisher P ON IP.publisher_id = P.id
-WHERE IP.name like '%dc comics%' AND IP.id IN (
-	SELECT S.publisher_id
-	FROM Series S
-	GROUP BY S.publisher_id
-	ORDER BY COUNT(*)
-);
+SELECT IP.name, COUNT(DISTINCT(I.series_id))
+FROM Indicia_Publisher IP, Issue I
+WHERE IP.id = I.indicia_publisher_id AND IP.name like '%dc comics%'
+GROUP BY IP.id
+ORDER BY COUNT(*) DESC;
 
 
 -- f) Print the titles of the 10 most reprinted stories
