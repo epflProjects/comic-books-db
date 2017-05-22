@@ -163,13 +163,35 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'notFrequently') {
-
+        connection.query("SELECT DISTINCT Series.name FROM Series JOIN (SELECT I.series_id FROM Issue I JOIN (SELECT S.issue_id AS issue_id FROM Story S WHERE S.type_id <> ( SELECT S.type_id FROM Story S GROUP BY S.type_id ORDER BY COUNT(S.type_id) DESC LIMIT 1)) AS NEW_STORY ON I.id = NEW_STORY.issue_id) AS NEW_ISSUE ON Series.id = NEW_ISSUE.series_id;",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in notFrequently query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'withTypes') {
 
     } else if (request.query.q === 'alanMoor') {
-
+        connection.query("SELECT C.name FROM Character_ C JOIN (SELECT c.character_id FROM characters c JOIN (SELECT s.story_id FROM script s JOIN (SELECT A.id FROM Artist A WHERE A.name = 'Alan Moore' LIMIT 1) AS A ON s.artist_id=A.id) AS AM_STORIES ON c.story_id=AM_STORIES.story_id GROUP BY c.character_id ORDER BY COUNT(c.story_id) DESC LIMIT 10) AS MOST_REPR_CHAR ON C.id=MOST_REPR_CHAR.character_id;",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in alanMoor query.");
+                    console.log(error.code);
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'natureRelated') {
-
+        connection.query("SELECT DISTINCT A.name FROM Artist A JOIN (SELECT SELECTED_STORIES.artist_id FROM (SELECT s.story_id, s.artist_id FROM script s JOIN (SELECT S.id FROM Story S WHERE S.genre like '%nature%') AS S ON s.story_id=S.id) as SELECTED_STORIES JOIN pencils p ON SELECTED_STORIES.story_id = p.story_id WHERE SELECTED_STORIES.artist_id = p.artist_id) AS NATURE_ARTISTS ON A.id=NATURE_ARTISTS.artist_id;",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in natureRelated query.");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'three') {
 
     } else if (request.query.q === 'magazines') {
@@ -193,95 +215,94 @@ app.get('/constructed', function(request, response) {
     } else if (request.query.q === 'givenIssue') {
 
     }
-    }
-);
+});
 
 app.get('insertDelete.html', function(request, response) {
     response.sendFile('insertDelete.html');
 });
 
 app.get('/insert', function(request, response) {
-   if (request.query.q === '0') {
-       insert_table_name = "Artist";
-       responseInsertQuery(response, "Artist")
-   } else if (request.query.q === '1') {
-       insert_table_name = "Brand_Group";
-       responseInsertQuery(response, "Brand_Group");
-   } else if (request.query.q === '2') {
-       insert_table_name = "Character_";
-       responseInsertQuery(response, "Character_");
-   } else if (request.query.q === '3') {
-       insert_table_name = "characters";
-       responseInsertQuery(response, "characters");
-   } else if (request.query.q === '4') {
-       insert_table_name = "colors";
-       responseInsertQuery(response, "colors");
-   } else if (request.query.q === '5') {
-       insert_table_name = "Country";
-       responseInsertQuery(response, "Country");
-   } else if (request.query.q === '6') {
-       insert_table_name = "Indicia_Publisher";
-       responseInsertQuery(response, "Indicia_Publisher");
-   } else if (request.query.q === '7') {
-       insert_table_name = "inks";
-       responseInsertQuery(response, "inks");
-   } else if (request.query.q === '8') {
-       insert_table_name = "Issue";
-       responseInsertQuery(response, "Issue");
-   } else if (request.query.q === '9') {
-       insert_table_name = "issue_reprint";
-       responseInsertQuery(response, "issue_reprint");
-   } else if (request.query.q === '10') {
-       insert_table_name = "Language";
-       responseInsertQuery(response, "Language");
-   } else if (request.query.q === '11') {
-       insert_table_name = "pencils";
-       responseInsertQuery(response, "pencils");
-   } else if (request.query.q === '12') {
-       insert_table_name = "Publisher";
-       responseInsertQuery(response, "Publisher");
-   } else if (request.query.q === '13') {
-       insert_table_name = "script";
-       responseInsertQuery(response, "script");
-   } else if (request.query.q === '14') {
-       insert_table_name = "Series";
-       responseInsertQuery(response, "Series");
-   } else if (request.query.q === '15') {
-       insert_table_name = "Series_Publication_Type";
-       responseInsertQuery(response, "Series_Publication_Type");
-   } else if (request.query.q === '16') {
-       insert_table_name = "Story";
-       responseInsertQuery(response, "Story");
-   } else if (request.query.q === '17') {
-       insert_table_name = "story_reprint";
-       responseInsertQuery(response, "story_reprint");
-   } else if (request.query.q === '18') {
-       insert_table_name = "Story_Type";
-       responseInsertQuery(response, "Story_Type");
-   }
+    if (request.query.q === '0') {
+        insert_table_name = "Artist";
+        responseInsertQuery(response, "Artist")
+    } else if (request.query.q === '1') {
+        insert_table_name = "Brand_Group";
+        responseInsertQuery(response, "Brand_Group");
+    } else if (request.query.q === '2') {
+        insert_table_name = "Character_";
+        responseInsertQuery(response, "Character_");
+    } else if (request.query.q === '3') {
+        insert_table_name = "characters";
+        responseInsertQuery(response, "characters");
+    } else if (request.query.q === '4') {
+        insert_table_name = "colors";
+        responseInsertQuery(response, "colors");
+    } else if (request.query.q === '5') {
+        insert_table_name = "Country";
+        responseInsertQuery(response, "Country");
+    } else if (request.query.q === '6') {
+        insert_table_name = "Indicia_Publisher";
+        responseInsertQuery(response, "Indicia_Publisher");
+    } else if (request.query.q === '7') {
+        insert_table_name = "inks";
+        responseInsertQuery(response, "inks");
+    } else if (request.query.q === '8') {
+        insert_table_name = "Issue";
+        responseInsertQuery(response, "Issue");
+    } else if (request.query.q === '9') {
+        insert_table_name = "issue_reprint";
+        responseInsertQuery(response, "issue_reprint");
+    } else if (request.query.q === '10') {
+        insert_table_name = "Language";
+        responseInsertQuery(response, "Language");
+    } else if (request.query.q === '11') {
+        insert_table_name = "pencils";
+        responseInsertQuery(response, "pencils");
+    } else if (request.query.q === '12') {
+        insert_table_name = "Publisher";
+        responseInsertQuery(response, "Publisher");
+    } else if (request.query.q === '13') {
+        insert_table_name = "script";
+        responseInsertQuery(response, "script");
+    } else if (request.query.q === '14') {
+        insert_table_name = "Series";
+        responseInsertQuery(response, "Series");
+    } else if (request.query.q === '15') {
+        insert_table_name = "Series_Publication_Type";
+        responseInsertQuery(response, "Series_Publication_Type");
+    } else if (request.query.q === '16') {
+        insert_table_name = "Story";
+        responseInsertQuery(response, "Story");
+    } else if (request.query.q === '17') {
+        insert_table_name = "story_reprint";
+        responseInsertQuery(response, "story_reprint");
+    } else if (request.query.q === '18') {
+        insert_table_name = "Story_Type";
+        responseInsertQuery(response, "Story_Type");
+    }
 });
 
 app.post('/insert/data', function(request, response) {
     connection.query("INSERT INTO "+insert_table_name +" SET ?", request.body,
-    function (error, results, fields) {
-        if (error) {
-            console.log("Error when inserting a new tuple.");
-            console.log(error.code);
-            switch (error.code) {
-                case "ER_DUP_ENTRY":
-                    response.status(502).send("Duplicate");
-                    break;
-                case "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD":
-                    response.status(502).send("Type");
-                    break;
-                default:
-                    response.status(404).send("zut");
+        function (error, results, fields) {
+            if (error) {
+                console.log("Error when inserting a new tuple.");
+                console.log(error.code);
+                switch (error.code) {
+                    case "ER_DUP_ENTRY":
+                        response.status(502).send("Duplicate");
+                        break;
+                    case "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD":
+                        response.status(502).send("Type");
+                        break;
+                    default:
+                        response.status(404).send("zut");
+                }
+            } else {
+                console.log("COOL");
+                response.status(200).send("OK");
             }
-        } else {
-            console.log("COOL");
-            response.status(200).send("OK");
-        }
-    });
+        });
 });
 
 app.post('/delete/data', function(request, response) {
@@ -293,17 +314,17 @@ app.post('/delete/data', function(request, response) {
     });
 
     connection.query("DELETE FROM "+ insert_table_name +" WHERE "+partQuery+"",
-    function (error, result, fields) {
-        if (error) {
-            console.log("Error when deleting a new tuple.");
-        } else {
-            console.log("DELETED!");
-            const jsonFile = {
-                "affectedRows" : result.affectedRows
-            };
-            response.json(jsonFile);
-        }
-    });
+        function (error, result, fields) {
+            if (error) {
+                console.log("Error when deleting a new tuple.");
+            } else {
+                console.log("DELETED!");
+                const jsonFile = {
+                    "affectedRows" : result.affectedRows
+                };
+                response.json(jsonFile);
+            }
+        });
 
     connection.query("set FOREIGN_KEY_CHECKS=1;", function(error, result, fields) {
         if (error) {
