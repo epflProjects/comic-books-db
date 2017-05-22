@@ -193,15 +193,43 @@ app.get('/constructed', function(request, response) {
             }
         });
     } else if (request.query.q === 'three') {
-
+        connection.query("SELECT P.name, PL2.name FROM Publisher P JOIN (SELECT PL.publisher_id, L.name FROM Language L JOIN (SELECT S.publisher_id, S.language_id FROM Series S JOIN (SELECT S.publisher_id FROM Series S GROUP BY S.publisher_id ORDER BY COUNT(*) DESC LIMIT 10) AS TOP_10_PUBL ON S.publisher_id=TOP_10_PUBL.publisher_id GROUP BY S.publisher_id, S.language_id) AS PL ON L.id=PL.language_id) AS PL2 ON P.id=PL2.publisher_id;",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in three query.");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'magazines') {
 
     } else if (request.query.q === 'italian') {
-
+        connection.query("SELECT * FROM Story_Type ST WHERE ST.id NOT IN (SELECT DISTINCT St.type_id FROM Story St JOIN (SELECT I.id FROM Issue I JOIN (SELECT MAGAZINES.id FROM Country C JOIN (SELECT S.id, S.country_id FROM Series S JOIN Series_Publication_Type SPT ON S.publication_type_id=SPT.id WHERE SPT.name = 'magazine') AS MAGAZINES ON C.id=MAGAZINES.country_id WHERE C.name = 'Italy') AS ITALIAN_MAGAZINES ON I.series_id=ITALIAN_MAGAZINES.id) AS IM_ISSUES ON St.issue_id=IM_ISSUES.id);",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in italian query.");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'cartoon') {
-
+        connection.query("SELECT A.name FROM Artist A JOIN (SELECT ARTIST_WITH_IP.artist_id FROM(SELECT s.artist_id, WITH_IP.indicia_publisher_id FROM script s JOIN (SELECT I.indicia_publisher_id, CARTOON_STORIES.id FROM Issue I JOIN (SELECT S.id, S.issue_id FROM Story S JOIN (SELECT ST.id FROM Story_Type ST WHERE ST.name = 'cartoon') AS CARTOON_TYPE ON S.type_id = CARTOON_TYPE.id) AS CARTOON_STORIES ON I.id = CARTOON_STORIES.issue_id) AS WITH_IP ON s.story_id = WITH_IP.id GROUP BY s.artist_id, WITH_IP.indicia_publisher_id) AS ARTIST_WITH_IP GROUP BY ARTIST_WITH_IP.artist_id HAVING COUNT(*) > 1) AS ARTIST_WITH_MORE_THAN_ONE_IP ON A.id=ARTIST_WITH_MORE_THAN_ONE_IP.artist_id;",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in cartoon query.");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'brandIndicia') {
-
+        connection.query("SELECT BG.name FROM (SELECT BG.id, BG.name FROM Brand_Group BG JOIN Indicia_Publisher IP ON IP.publisher_id=BG.publisher_id) AS BG GROUP BY BG.id ORDER BY COUNT(*) DESC LIMIT 10;",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in brandIndicia query.");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'seriesLength') {
 
     } else if (request.query.q === 'singleIssue') {
