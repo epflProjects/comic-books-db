@@ -30,7 +30,8 @@ WHERE S.publication_type_id IS NOT NULL;
 SELECT P.name
 FROM Publisher P
 JOIN (
-	SELECT DISTINCT Publisher.id FROM (Publisher LEFT OUTER JOIN (
+	SELECT DISTINCT Publisher.id 
+	FROM (Publisher LEFT OUTER JOIN (
 		SELECT DISTINCT CROSS_PRODUCT.P_id
 		FROM ((
 			SELECT PSJ.id as P_id, PT.id as PT_id
@@ -49,10 +50,44 @@ DROP TABLE tmp;
 
 -- c)  Print the 10 most-reprinted characters from Alan Moore's stories. 
 
+SELECT C.name
+FROM Character_ C
+JOIN (
+	SELECT c.character_id
+	FROM characters c
+	JOIN (
+		SELECT s.story_id
+		FROM script s
+		JOIN (
+			SELECT A.id
+			FROM Artist A
+			WHERE A.name = 'Alan Moore'
+			LIMIT 1) AS A
+		ON s.artist_id=A.id) AS AM_STORIES
+	ON c.story_id=AM_STORIES.story_id
+	GROUP BY c.character_id
+	ORDER BY COUNT(c.story_id) DESC
+	LIMIT 10) AS MOST_REPR_CHAR
+ON C.id=MOST_REPR_CHAR.character_id
 
 
 -- d)  Print the writers (scripts) of nature-related stories that have also done the pencilwork in all their nature-related stories. 
 
+SELECT DISTINCT A.name
+FROM Artist A
+JOIN (
+	SELECT SELECTED_STORIES.artist_id
+	FROM (
+		SELECT s.story_id, s.artist_id
+		FROM script s
+		JOIN (
+			SELECT S.id
+			FROM Story S
+			WHERE S.genre like '%nature%') AS S
+		ON s.story_id=S.id) as SELECTED_STORIES
+	JOIN pencils p ON SELECTED_STORIES.story_id = p.story_id
+	WHERE SELECTED_STORIES.artist_id = p.artist_id) AS NATURE_ARTISTS
+ON A.id=NATURE_ARTISTS.artist_id
 
 
 -- e)  For each of the top-10 publishers in terms of published series, print the 3 most popular languages of their series. 
