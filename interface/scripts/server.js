@@ -193,7 +193,7 @@ app.get('/constructed', function(request, response) {
             }
         });
     } else if (request.query.q === 'three') {
-        connection.query("SELECT P.name, PL2.name FROM Publisher P JOIN (SELECT PL.publisher_id, L.name FROM Language L JOIN (SELECT S.publisher_id, S.language_id FROM Series S JOIN (SELECT S.publisher_id FROM Series S GROUP BY S.publisher_id ORDER BY COUNT(*) DESC LIMIT 10) AS TOP_10_PUBL ON S.publisher_id=TOP_10_PUBL.publisher_id GROUP BY S.publisher_id, S.language_id) AS PL ON L.id=PL.language_id) AS PL2 ON P.id=PL2.publisher_id;",
+        connection.query("SELECT P.name as publisher, PL2.name as language FROM Publisher P JOIN (SELECT PL.publisher_id, L.name FROM Language L JOIN (SELECT S.publisher_id, S.language_id FROM Series S JOIN (SELECT S.publisher_id FROM Series S GROUP BY S.publisher_id ORDER BY COUNT(*) DESC LIMIT 10) AS TOP_10_PUBL ON S.publisher_id=TOP_10_PUBL.publisher_id GROUP BY S.publisher_id, S.language_id) AS PL ON L.id=PL.language_id) AS PL2 ON P.id=PL2.publisher_id;",
         function (error, rows, fields) {
             if (error) {
                 console.log("Error in three query.");
