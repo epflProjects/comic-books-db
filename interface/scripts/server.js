@@ -100,7 +100,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'danish') {
-        connection.query("SELECT P.id, P.name FROM Publisher P WHERE P.id IN (SELECT S.publisher_id FROM Series S WHERE S.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Denmark'));",
+        connection.query("SELECT P.id, P.name FROM Publisher P WHERE P.id IN (SELECT S.publisher_id FROM Series S WHERE S.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Denmark') AND S.publication_type_id IN (SELECT SPT.id FROM Series_Publication_Type SPT WHERE SPT.name = 'book'));",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in Danish query.");
@@ -118,7 +118,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q ==='1990') {
-        connection.query('SELECT I.publication_date, COUNT(*) FROM Issue I GROUP BY I.publication_date HAVING I.publication_date >= 1990;',
+        connection.query("SELECT I.publication_date, COUNT(*) FROM Issue I WHERE I.publication_date >= 1990 AND I.publication_date <=2017 GROUP BY I.publication_date ORDER BY I.publication_date ASC;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Erreur ma gueule.");
@@ -127,7 +127,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'dcComics') {
-        connection.query("SELECT IP.name FROM Indicia_Publisher IP JOIN Publisher P ON IP.publisher_id = P.id WHERE IP.name like '%dc comics%' AND IP.id IN (SELECT S.publisher_id FROM Series S GROUP BY S.publisher_id ORDER BY COUNT(*));",
+        connection.query("SELECT IP.name, COUNT(DISTINCT(I.series_id)) FROM Indicia_Publisher IP, Issue I WHERE IP.id = I.indicia_publisher_id AND IP.name like '%dc comics%' GROUP BY IP.id ORDER BY COUNT(*) DESC;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in DC Comics query.");
