@@ -71,7 +71,7 @@ JOIN (
 	GROUP BY c.character_id
 	ORDER BY COUNT(c.story_id) DESC
 	LIMIT 10) AS MOST_REPR_CHAR
-ON C.id=MOST_REPR_CHAR.character_id
+ON C.id=MOST_REPR_CHAR.character_id;
 
 
 -- d)  Print the writers of nature-related stories that have also done the pencilwork in all their nature-related stories. 
@@ -90,13 +90,13 @@ JOIN (
 		ON s.story_id=S.id) as SELECTED_STORIES
 	JOIN pencils p ON SELECTED_STORIES.story_id = p.story_id
 	WHERE SELECTED_STORIES.artist_id = p.artist_id) AS NATURE_ARTISTS
-ON A.id=NATURE_ARTISTS.artist_id
+ON A.id=NATURE_ARTISTS.artist_id;
 
 
 -- e)  For each of the top-10 publishers in terms of published series, print the 3 most popular languages of their series. 
 -- [Select only 3 languages]
 
-SELECT P.name, PL2.name
+SELECT P.name AS publisher, PL2.name AS language
 FROM Publisher P
 JOIN (
 	SELECT PL.publisher_id, L.name
@@ -116,10 +116,29 @@ JOIN (
 	) AS PL
 	ON L.id=PL.language_id
 ) AS PL2
-ON P.id=PL2.publisher_id
+ON P.id=PL2.publisher_id;
 
 -- f)  Print the languages that have more than 10000 original stories published in magazines, along with the number of those stories. 
 
+SELECT L.name as language, BY_LANGUAGE.number_of_stories
+FROM Language L
+JOIN (
+	SELECT MAG_ISSUES.language_id, COUNT(*) AS number_of_stories
+	FROM Story St
+	JOIN (
+		SELECT I.id AS issue_id, MAGAZINES.id AS series_id, MAGAZINES.language_id
+		FROM Issue I
+		JOIN (
+			SELECT S.id, S.language_id
+			FROM Series S
+			JOIN Series_Publication_Type SPT 
+			ON S.publication_type_id=SPT.id
+			WHERE SPT.name = 'magazine') AS MAGAZINES
+		ON I.series_id=MAGAZINES.id) AS MAG_ISSUES
+	ON St.issue_id=MAG_ISSUES.issue_id
+	GROUP BY MAG_ISSUES.language_id) AS BY_LANGUAGE
+ON L.id=BY_LANGUAGE.language_id
+ORDER BY BY_LANGUAGE.number_of_stories DESC
 
 
 -- g)  Print all story types that have not been published as a part of Italian magazine series. 
@@ -146,7 +165,7 @@ WHERE ST.id NOT IN (
 		) AS ITALIAN_MAGAZINES
 		ON I.series_id=ITALIAN_MAGAZINES.id
 	) AS IM_ISSUES
-	ON St.issue_id=IM_ISSUES.id)
+	ON St.issue_id=IM_ISSUES.id);
 
 
 -- h)  Print the writers of cartoon stories who have worked as writers for more than one indicia publisher. 
@@ -178,7 +197,7 @@ JOIN (
 	GROUP BY ARTIST_WITH_IP.artist_id
 	HAVING COUNT(*) > 1
 ) AS ARTIST_WITH_MORE_THAN_ONE_IP
-ON A.id=ARTIST_WITH_MORE_THAN_ONE_IP.artist_id
+ON A.id=ARTIST_WITH_MORE_THAN_ONE_IP.artist_id;
 
 
 -- i)  Print the 10 brand groups with the highest number of indicia publishers. 
