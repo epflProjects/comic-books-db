@@ -241,19 +241,47 @@ app.get('/constructed', function(request, response) {
         connection.query("SELECT IP.name AS indicia_publisher, IP_AVG.average_series_length FROM Indicia_Publisher IP JOIN (SELECT ISSUE_SERIES.indicia_publisher_id, AVG(ISSUE_SERIES.year_ended - ISSUE_SERIES.year_began) AS average_series_length FROM (SELECT S.id AS series_id, I.id AS issue_id, S.year_began, S.year_ended, I.indicia_publisher_id FROM Series S JOIN Issue I ON I.series_id=S.id) AS ISSUE_SERIES JOIN Indicia_Publisher IP ON IP.id=ISSUE_SERIES.indicia_publisher_id GROUP BY ISSUE_SERIES.indicia_publisher_id) AS IP_AVG ON IP_AVG.indicia_publisher_id=IP.id;",
         function (error, rows, fields) {
             if (error) {
-                console.log("Error in seriesLength");
+                console.log("Error in seriesLength query.");
             } else {
                 responseOfConstructedQuery(rows, fields, response);
             }
         });
     } else if (request.query.q === 'singleIssue') {
-
+        connection.query("SELECT IP.name AS indicia_publisher FROM Indicia_Publisher IP JOIN (SELECT I.indicia_publisher_id FROM Issue I JOIN (SELECT I.series_id FROM Issue I GROUP BY I.series_id HAVING COUNT(*) = 1) AS SINGLE_ISSUES ON I.series_id = SINGLE_ISSUES.series_id WHERE I.indicia_publisher_id IS NOT NULL GROUP BY I.indicia_publisher_id ORDER BY COUNT(*) DESC LIMIT 10) AS TOP_IPS ON IP.id = TOP_IPS.indicia_publisher_id;",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in singleIssue query.");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'scriptWriters') {
-
+        connection.query("SELECT IP.name AS indicia_publisher FROM Indicia_Publisher IP JOIN (SELECT DISTINCT I.indicia_publisher_id FROM Issue I JOIN (SELECT St.issue_id FROM Story St JOIN ( SELECT s.story_id FROM script s GROUP BY s.story_id ORDER BY COUNT(*) DESC) AS STORIES ON St.id = STORIES.story_id) AS ISSUES ON I.id = ISSUES.issue_id WHERE I.indicia_publisher_id IS NOT NULL LIMIT 10) AS TOP_IPS ON IP.id = TOP_IPS.indicia_publisher_id;",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in scriptWriters query.");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'marvel') {
-
+        connection.query("SELECT C.name as Marvel_heroes FROM Character_ C JOIN (SELECT DISTINCT c.character_id FROM characters c JOIN (SELECT St.id FROM Story St WHERE St.title LIKE '%Marvel%' AND St.title LIKE '%DC%') AS CROSSOVERS ON c.story_id = CROSSOVERS.id) AS CHARACTERS ON C.id = CHARACTERS.character_id;",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in marvel query.");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'five') {
-
+        connection.query("SELECT S.id, S.name FROM Series S JOIN (SELECT I.series_id, COUNT(*) FROM Issue I GROUP BY I.series_id ORDER BY COUNT(*) DESC LIMIT 5) AS SERIES ON S.id = SERIES.series_id;",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in five query.");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'givenIssue') {
 
     }
