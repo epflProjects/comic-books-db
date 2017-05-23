@@ -85,10 +85,10 @@ JOIN (
 			SELECT S.id
 			FROM Story S
 			WHERE S.genre like '%nature%') AS S
-		ON s.story_id=S.id) as SELECTED_STORIES
+		ON s.story_id = S.id) as SELECTED_STORIES
 	JOIN pencils p ON SELECTED_STORIES.story_id = p.story_id
 	WHERE SELECTED_STORIES.artist_id = p.artist_id) AS NATURE_ARTISTS
-ON A.id=NATURE_ARTISTS.artist_id;
+ON A.id = NATURE_ARTISTS.artist_id;
 
 
 -- e)  For each of the top-10 publishers in terms of published series, print the 3 most popular languages of their series. 
@@ -109,12 +109,12 @@ JOIN (
 			ORDER BY COUNT(*) DESC
 			LIMIT 10
 		) AS TOP_10_PUBL
-		ON S.publisher_id=TOP_10_PUBL.publisher_id
+		ON S.publisher_id = TOP_10_PUBL.publisher_id
 		GROUP BY S.publisher_id, S.language_id
 	) AS PL
-	ON L.id=PL.language_id
+	ON L.id = PL.language_id
 ) AS PL2
-ON P.id=PL2.publisher_id;
+ON P.id = PL2.publisher_id;
 
 
 -- f)  Print the languages that have more than 10000 original stories published in magazines, along with the number of those stories. 
@@ -131,12 +131,12 @@ JOIN (
 			SELECT S.id, S.language_id
 			FROM Series S
 			JOIN Series_Publication_Type SPT 
-			ON S.publication_type_id=SPT.id
+			ON S.publication_type_id = SPT.id
 			WHERE SPT.name = 'magazine') AS MAGAZINES
-		ON I.series_id=MAGAZINES.id) AS MAG_ISSUES
-	ON St.issue_id=MAG_ISSUES.issue_id
+		ON I.series_id = MAGAZINES.id) AS MAG_ISSUES
+	ON St.issue_id = MAG_ISSUES.issue_id
 	GROUP BY MAG_ISSUES.language_id) AS BY_LANGUAGE
-ON L.id=BY_LANGUAGE.language_id
+ON L.id = BY_LANGUAGE.language_id
 ORDER BY BY_LANGUAGE.number_of_stories DESC
 
 
@@ -157,14 +157,14 @@ WHERE ST.id NOT IN (
 			JOIN (
 				SELECT S.id, S.country_id
 				FROM Series S
-				JOIN Series_Publication_Type SPT ON S.publication_type_id=SPT.id
+				JOIN Series_Publication_Type SPT ON S.publication_type_id = SPT.id
 				WHERE SPT.name = 'magazine') AS MAGAZINES
 			ON C.id=MAGAZINES.country_id
 			WHERE C.name = 'Italy'
 		) AS ITALIAN_MAGAZINES
-		ON I.series_id=ITALIAN_MAGAZINES.id
+		ON I.series_id = ITALIAN_MAGAZINES.id
 	) AS IM_ISSUES
-	ON St.issue_id=IM_ISSUES.id);
+	ON St.issue_id = IM_ISSUES.id);
 
 
 -- h)  Print the writers of cartoon stories who have worked as writers for more than one indicia publisher. 
@@ -221,26 +221,81 @@ JOIN (
 	FROM (
 		SELECT S.id AS series_id, I.id AS issue_id, S.year_began, S.year_ended, I.indicia_publisher_id
 		FROM Series S
-		JOIN Issue I ON I.series_id=S.id) AS ISSUE_SERIES
-	JOIN Indicia_Publisher IP ON IP.id=ISSUE_SERIES.indicia_publisher_id
+		JOIN Issue I ON I.series_id = S.id) AS ISSUE_SERIES
+	JOIN Indicia_Publisher IP ON IP.id = ISSUE_SERIES.indicia_publisher_id
 	GROUP BY ISSUE_SERIES.indicia_publisher_id) AS IP_AVG
-ON IP_AVG.indicia_publisher_id=IP.id
+ON IP_AVG.indicia_publisher_id = IP.id
 
 
 -- k)  Print the top 10 indicia publishers that have published the most single-issue series. 
 
+SELECT IP.name AS indicia_publisher
+FROM Indicia_Publisher IP
+JOIN (
+	SELECT I.indicia_publisher_id
+	FROM Issue I
+	JOIN (
+		SELECT I.series_id
+		FROM Issue I
+		GROUP BY I.series_id
+		HAVING COUNT(*) = 1
+	) AS SINGLE_ISSUES
+	ON I.series_id = SINGLE_ISSUES.series_id
+	WHERE I.indicia_publisher_id IS NOT NULL
+	GROUP BY I.indicia_publisher_id
+	ORDER BY COUNT(*) DESC
+	LIMIT 10
+) AS TOP_IPS
+ON IP.id = TOP_IPS.indicia_publisher_id
 
 
 -- l)  Print the 10 indicia publishers with the highest number of script writers in a single story. 
 
+SELECT IP.name AS indicia_publisher
+FROM Indicia_Publisher IP
+JOIN (
+	SELECT DISTINCT I.indicia_publisher_id
+	FROM Issue I
+	JOIN (
+		SELECT St.issue_id
+		FROM Story St
+		JOIN (
+			SELECT s.story_id
+			FROM script s
+			GROUP BY s.story_id
+			ORDER BY COUNT(*) DESC
+		) AS STORIES
+		ON St.id = STORIES.story_id
+	) AS ISSUES
+	ON I.id = ISSUES.issue_id
+	WHERE I.indicia_publisher_id IS NOT NULL
+	LIMIT 10) AS TOP_IPS
+ON IP.id = TOP_IPS.indicia_publisher_id
 
 
 -- m)  Print all Marvel heroes that appear in Marvel-DC story crossovers (both marvel AND dc in the title). 
 
 
 
+
 -- n)  Print the top 5 series with most issues 
 
+SELECT S.id, S.name
+FROM Series S
+JOIN (
+	SELECT I.series_id, COUNT(*)
+	FROM Issue I
+	GROUP BY I.series_id
+	ORDER BY COUNT(*) DESC
+	LIMIT 5
+) AS SERIES
+ON S.id = SERIES.series_id
 
 
 -- o)  Given an issue, print its most reprinted story.
+
+
+
+
+
+
