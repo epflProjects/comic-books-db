@@ -62,7 +62,7 @@ ORDER BY I.publication_date ASC;
 
 SELECT IP.name, COUNT(DISTINCT(I.series_id))
 FROM Indicia_Publisher IP, Issue I
-WHERE IP.id = I.indicia_publisher_id AND IP.name like '%dc comics%'
+WHERE IP.id = I.indicia_publisher_id AND IP.name LIKE '%dc comics%'
 GROUP BY IP.id
 ORDER BY COUNT(*) DESC;
 

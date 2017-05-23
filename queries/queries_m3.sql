@@ -1,4 +1,5 @@
 -- a)  Print the series names that have the highest number of issues which contain a story whose type (e.g.,cartoon) is not the one occurring most frequently in the database (e.g, illustration). 
+-- [Fix order]
 
 SELECT DISTINCT Series.name
 FROM Series
@@ -84,7 +85,7 @@ JOIN (
 		JOIN (
 			SELECT S.id
 			FROM Story S
-			WHERE S.genre like '%nature%') AS S
+			WHERE S.genre LIKE '%nature%') AS S
 		ON s.story_id = S.id) as SELECTED_STORIES
 	JOIN pencils p ON SELECTED_STORIES.story_id = p.story_id
 	WHERE SELECTED_STORIES.artist_id = p.artist_id) AS NATURE_ARTISTS
@@ -273,9 +274,21 @@ JOIN (
 ON IP.id = TOP_IPS.indicia_publisher_id
 
 
--- m)  Print all Marvel heroes that appear in Marvel-DC story crossovers (both marvel AND dc in the title). 
+-- m)  Print all Marvel heroes that appear in Marvel-DC story crossovers. 
 
-
+SELECT C.name as Marvel_heroes
+FROM Character_ C
+JOIN (
+	SELECT DISTINCT c.character_id
+	FROM characters c
+	JOIN (
+		SELECT St.id
+		FROM Story St
+		WHERE St.title LIKE '%Marvel%' AND St.title LIKE '%DC%'
+	) AS CROSSOVERS
+	ON c.story_id = CROSSOVERS.id
+) AS CHARACTERS
+ON C.id = CHARACTERS.character_id
 
 
 -- n)  Print the top 5 series with most issues 
@@ -293,6 +306,8 @@ ON S.id = SERIES.series_id
 
 
 -- o)  Given an issue, print its most reprinted story.
+
+
 
 
 
