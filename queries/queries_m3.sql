@@ -21,8 +21,6 @@ ON Series.id = NEW_ISSUE.series_id;
 -- b)  Print the names of publishers who have series with all series types. 
 -- [Fix + optimize]
 
-
-
 CREATE TABLE tmp 
 SELECT P.id, S.publication_type_id
 FROM Publisher P
@@ -117,6 +115,7 @@ JOIN (
 	ON L.id=PL.language_id
 ) AS PL2
 ON P.id=PL2.publisher_id;
+
 
 -- f)  Print the languages that have more than 10000 original stories published in magazines, along with the number of those stories. 
 
@@ -215,6 +214,17 @@ LIMIT 10;
 
 -- j)  Print the average series length (in terms of years) per indicia publisher. 
 
+SELECT IP.name AS indicia_publisher, IP_AVG.average_series_length
+FROM Indicia_Publisher IP
+JOIN (
+	SELECT ISSUE_SERIES.indicia_publisher_id, AVG(ISSUE_SERIES.year_ended - ISSUE_SERIES.year_began) AS average_series_length
+	FROM (
+		SELECT S.id AS series_id, I.id AS issue_id, S.year_began, S.year_ended, I.indicia_publisher_id
+		FROM Series S
+		JOIN Issue I ON I.series_id=S.id) AS ISSUE_SERIES
+	JOIN Indicia_Publisher IP ON IP.id=ISSUE_SERIES.indicia_publisher_id
+	GROUP BY ISSUE_SERIES.indicia_publisher_id) AS IP_AVG
+ON IP_AVG.indicia_publisher_id=IP.id
 
 
 -- k)  Print the top 10 indicia publishers that have published the most single-issue series. 
