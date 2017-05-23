@@ -91,7 +91,7 @@ app.post('/search', function(request, response) {
 
 app.get('/constructed', function(request, response) {
     if (request.query.q === 'belgian') {
-        connection.query("SELECT BG.name, COUNT(*) FROM (SELECT BG.id, BG.name FROM Brand_Group BG JOIN Indicia_Publisher IP ON IP.publisher_id=BG.publisher_id WHERE IP.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Belgium')) AS BG GROUP BY BG.id ORDER BY COUNT(*) DESC;",
+        connection.query("SELECT BG.name, COUNT(*) as Number FROM (SELECT BG.id, BG.name FROM Brand_Group BG JOIN Indicia_Publisher IP ON IP.publisher_id=BG.publisher_id WHERE IP.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Belgium')) AS BG GROUP BY BG.id ORDER BY COUNT(*) DESC;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in Belgian query.");
@@ -118,7 +118,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q ==='1990') {
-        connection.query("SELECT I.publication_date, COUNT(*) FROM Issue I WHERE I.publication_date >= 1990 AND I.publication_date <=2017 GROUP BY I.publication_date ORDER BY I.publication_date ASC;",
+        connection.query("SELECT I.publication_date, COUNT(*) as Number FROM Issue I WHERE I.publication_date >= 1990 AND I.publication_date <=2017 GROUP BY I.publication_date ORDER BY I.publication_date ASC;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Erreur ma gueule.");
@@ -202,7 +202,14 @@ app.get('/constructed', function(request, response) {
             }
         });
     } else if (request.query.q === 'magazines') {
-
+        connection.query("SELECT L.name as language, BY_LANGUAGE.number_of_stories FROM Language L JOIN (SELECT MAG_ISSUES.language_id, COUNT(*) AS number_of_stories FROM Story St JOIN (SELECT I.id AS issue_id, MAGAZINES.id AS series_id, MAGAZINES.language_id FROM Issue I JOIN (SELECT S.id, S.language_id FROM Series S JOIN Series_Publication_Type SPT ON S.publication_type_id=SPT.id WHERE SPT.name = 'magazine') AS MAGAZINES ON I.series_id=MAGAZINES.id) AS MAG_ISSUES ON St.issue_id=MAG_ISSUES.issue_id GROUP BY MAG_ISSUES.language_id) AS BY_LANGUAGE ON L.id=BY_LANGUAGE.language_id ORDER BY BY_LANGUAGE.number_of_stories DESC;",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in magazines query.");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'italian') {
         connection.query("SELECT * FROM Story_Type ST WHERE ST.id NOT IN (SELECT DISTINCT St.type_id FROM Story St JOIN (SELECT I.id FROM Issue I JOIN (SELECT MAGAZINES.id FROM Country C JOIN (SELECT S.id, S.country_id FROM Series S JOIN Series_Publication_Type SPT ON S.publication_type_id=SPT.id WHERE SPT.name = 'magazine') AS MAGAZINES ON C.id=MAGAZINES.country_id WHERE C.name = 'Italy') AS ITALIAN_MAGAZINES ON I.series_id=ITALIAN_MAGAZINES.id) AS IM_ISSUES ON St.issue_id=IM_ISSUES.id);",
         function (error, rows, fields) {
@@ -231,7 +238,14 @@ app.get('/constructed', function(request, response) {
             }
         });
     } else if (request.query.q === 'seriesLength') {
-
+        connection.query("SELECT IP.name AS indicia_publisher, IP_AVG.average_series_length FROM Indicia_Publisher IP JOIN (SELECT ISSUE_SERIES.indicia_publisher_id, AVG(ISSUE_SERIES.year_ended - ISSUE_SERIES.year_began) AS average_series_length FROM (SELECT S.id AS series_id, I.id AS issue_id, S.year_began, S.year_ended, I.indicia_publisher_id FROM Series S JOIN Issue I ON I.series_id=S.id) AS ISSUE_SERIES JOIN Indicia_Publisher IP ON IP.id=ISSUE_SERIES.indicia_publisher_id GROUP BY ISSUE_SERIES.indicia_publisher_id) AS IP_AVG ON IP_AVG.indicia_publisher_id=IP.id;",
+        function (error, rows, fields) {
+            if (error) {
+                console.log("Error in seriesLength");
+            } else {
+                responseOfConstructedQuery(rows, fields, response);
+            }
+        });
     } else if (request.query.q === 'singleIssue') {
 
     } else if (request.query.q === 'scriptWriters') {
