@@ -1,6 +1,6 @@
 -- a)  Print the brand group names with the highest number of Belgian indicia publishers.
 
-SELECT BG.name, COUNT(*)
+SELECT BG.name
 FROM (
 	SELECT BG.id, BG.name
 	FROM Brand_Group BG
@@ -12,7 +12,8 @@ FROM (
 	)
 ) AS BG
 GROUP BY BG.id
-ORDER BY COUNT(*) DESC;
+ORDER BY COUNT(*) DESC
+LIMIT 15;
 
 
 -- b)  Print the ids and names of publishers of Danish book series.
@@ -69,14 +70,16 @@ ORDER BY COUNT(*) DESC;
 
 -- f) Print the titles of the 10 most reprinted stories
 
-SELECT S.title
+SELECT DISTINCT S.title
 FROM Story S
-WHERE S.id IN (
+JOIN (
 	SELECT SR.origin_id
 	FROM story_reprint SR
 	GROUP BY SR.origin_id
 	ORDER BY COUNT(*) DESC
-) AND S.title <> 'NULL'
+) AS SR
+ON S.id = SR.origin_id
+WHERE S.title <> 'NULL'
 LIMIT 10;
 
 
