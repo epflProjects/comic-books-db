@@ -80,7 +80,7 @@ $(document).ready(function () {
                         bdeferRender: true,
                         bscrollCollapse: true,
                         scrollX: "50vh",
-                        scrollY: "30vh",
+                        scrollY: "50vh",
                         scroller: true,
                         overflow: "auto",
                         aoColumnDefs: [
