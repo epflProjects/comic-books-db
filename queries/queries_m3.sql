@@ -1,7 +1,7 @@
 -- a)  Print the series names that have the highest number of issues which contain a story whose type (e.g.,cartoon) is not the one occurring most frequently in the database (e.g, illustration). 
--- [Fix order]
+-- [Optimize !]
 
-SELECT DISTINCT S.name
+SELECT DISTINCT S.name AS series_names
 FROM Series S
 JOIN (
 	SELECT I.series_id
@@ -24,7 +24,7 @@ LIMIT 15;
 
 -- b)  Print the names of publishers who have series with all series types. 
 
-SELECT P.name
+SELECT P.name AS publisher_names
 FROM Publisher P
 JOIN (
 	SELECT PUBL_TYPE.publisher_id, COUNT(*) 
@@ -43,7 +43,7 @@ ORDER BY P.name ASC;
 
 -- c)  Print the 10 most-reprinted characters from Alan Moore's stories. 
 
-SELECT C.name
+SELECT C.name AS alan_moore_most_reprinted_characters
 FROM Character_ C
 JOIN (
 	SELECT c.character_id
@@ -66,7 +66,7 @@ ON C.id=MOST_REPR_CHAR.character_id;
 
 -- d)  Print the writers of nature-related stories that have also done the pencilwork in all their nature-related stories. 
 
-SELECT DISTINCT A.name
+SELECT DISTINCT A.name AS writers
 FROM Artist A
 JOIN (
 	SELECT SELECTED_STORIES.artist_id
@@ -103,7 +103,15 @@ JOIN (
 		) AS TOP_10_PUBL
 		ON S.publisher_id = TOP_10_PUBL.publisher_id
 		GROUP BY S.publisher_id, S.language_id
-	) AS PL
+ 	-- 	HAVING S.language_id IN (
+		-- 	SELECT S1.language_id
+		-- 	FROM Series S1
+		-- 	WHERE S1.publisher_id = S.publisher_id
+		-- 	GROUP BY S1.language_id
+		-- 	ORDER BY COUNT(*) DESC
+		-- 	LIMIT 3
+		-- )
+		ORDER BY S.publisher_id ASC, COUNT(*) DESC	) AS PL
 	ON L.id = PL.language_id
 ) AS PL2
 ON P.id = PL2.publisher_id;
@@ -133,9 +141,8 @@ ORDER BY BY_LANGUAGE.number_of_stories DESC;
 
 
 -- g)  Print all story types that have not been published as a part of Italian magazine series. 
--- [remove IN??]
 
-SELECT *
+SELECT ST.name AS story_type
 FROM Story_Type ST
 WHERE ST.id NOT IN (
 	SELECT DISTINCT St.type_id
@@ -161,7 +168,7 @@ WHERE ST.id NOT IN (
 
 -- h)  Print the writers of cartoon stories who have worked as writers for more than one indicia publisher. 
 
-SELECT A.name
+SELECT A.name AS writers
 FROM Artist A
 JOIN (
 	SELECT ARTIST_WITH_IP.artist_id
@@ -193,7 +200,7 @@ ON A.id=ARTIST_WITH_MORE_THAN_ONE_IP.artist_id;
 
 -- i)  Print the 10 brand groups with the highest number of indicia publishers. 
 
-SELECT BG.name
+SELECT BG.name AS brand_groups
 FROM (
 	SELECT BG.id, BG.name
 	FROM Brand_Group BG
@@ -284,7 +291,7 @@ ON C.id = CHARACTERS.character_id;
 
 -- n)  Print the top 5 series with most issues 
 
-SELECT S.id, S.name
+SELECT S.id AS series_id, S.name
 FROM Series S
 JOIN (
 	SELECT I.series_id, COUNT(*)
@@ -296,21 +303,44 @@ JOIN (
 ON S.id = SERIES.series_id;
 
 
--- o)  Given an issue, print its most reprinted story.
+-- o)  Given an issue, print its most reprinted story
 
-SELECT MOST_REPR.issue_id, MAX(MOST_REPR.reprint_count)
+SELECT I.id AS issue_id, I.title AS issue_title, St.id AS most_reprinted_story_id, St.title AS most_reprinted_story, COUNT(*) AS number_of_reprints
+FROM Issue I, Story St, story_reprint sr
+WHERE I.id = 968363 AND St.id = sr.origin_id AND St.issue_id = I.id
+GROUP BY St.id
+ORDER BY COUNT(*) DESC
+LIMIT 1;
+
+
+
+-- o with list of all issues and corresponding most reprinted story
+
+SELECT MOST_REPR_WITH_STORY.issue_id AS given_issue, MIN(MOST_REPR_WITH_STORY.id) AS most_reprinted_story, MOST_REPR_WITH_STORY.reprint_count
 FROM (
-	SELECT DISTINCT St.issue_id, REPRINTS.reprint_count
+   SELECT ISSUE_WITH_COUNT.issue_id, MAX(ISSUE_WITH_COUNT.reprint_count) AS reprint_max
+	FROM (
+		SELECT DISTINCT St.issue_id, REPRINTS.reprint_count
+		FROM Story St
+		JOIN (
+			SELECT sr.origin_id, COUNT(*) AS reprint_count
+			FROM story_reprint sr
+			GROUP BY sr.origin_id
+			ORDER BY COUNT(*) DESC) AS REPRINTS
+		ON St.id = REPRINTS.origin_id) AS ISSUE_WITH_COUNT
+	GROUP BY ISSUE_WITH_COUNT.issue_id) AS MOST_REPR
+JOIN (
+	SELECT St.issue_id, St.id, REPRINTS.reprint_count
 	FROM Story St
 	JOIN (
 		SELECT sr.origin_id, COUNT(*) AS reprint_count
 		FROM story_reprint sr
 		GROUP BY sr.origin_id
-		ORDER BY COUNT(*) DESC
-	) AS REPRINTS
-	ON St.id = REPRINTS.origin_id) AS MOST_REPR
-group by MOST_REPR.issue_id;
-
-
+		ORDER BY COUNT(*) DESC) AS REPRINTS
+	ON St.id = REPRINTS.origin_id
+	ORDER BY St.issue_id) AS MOST_REPR_WITH_STORY
+ON MOST_REPR_WITH_STORY.issue_id = MOST_REPR.issue_id AND MOST_REPR_WITH_STORY.reprint_count = MOST_REPR.reprint_max
+GROUP BY MOST_REPR_WITH_STORY.issue_id, MOST_REPR_WITH_STORY.reprint_count
+ORDER BY MOST_REPR_WITH_STORY.issue_id;
 
 

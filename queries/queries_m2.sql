@@ -1,6 +1,6 @@
 -- a)  Print the brand group names with the highest number of Belgian indicia publishers.
 
-SELECT BG.name
+SELECT BG.name AS brand_groups
 FROM (
 	SELECT BG.id, BG.name
 	FROM Brand_Group BG
@@ -18,7 +18,7 @@ LIMIT 15;
 
 -- b)  Print the ids and names of publishers of Danish book series.
 
-SELECT P.id, P.name
+SELECT P.id AS publisher_id, P.name AS publisher_name
 FROM Publisher P
 WHERE P.id IN (
 	SELECT S.publisher_id
@@ -37,7 +37,7 @@ WHERE P.id IN (
 
 -- c)  Print the names of all Swiss series that have been published in magazines.
 
-SELECT S.name
+SELECT S.name AS magazines_swiss_series_names
 FROM Series S
 WHERE S.country_id IN (
 	SELECT C.id
@@ -52,7 +52,7 @@ WHERE S.country_id IN (
 
 -- d)  Starting from 1990, print the number of issues published each year.
 
-SELECT I.publication_date, COUNT(*)
+SELECT I.publication_date AS year, COUNT(*) AS number_of_issues
 FROM Issue I
 WHERE I.publication_date >= 1990 AND I.publication_date <=2017
 GROUP BY I.publication_date
@@ -61,7 +61,7 @@ ORDER BY I.publication_date ASC;
 
 -- e) Print the number of series for each indicia publisher whose name resembles ‘DC comics’.
 
-SELECT IP.name, COUNT(DISTINCT(I.series_id))
+SELECT IP.name AS indicia_publisher, COUNT(DISTINCT(I.series_id)) AS number_of_series
 FROM Indicia_Publisher IP, Issue I
 WHERE IP.id = I.indicia_publisher_id AND IP.name LIKE '%dc comics%'
 GROUP BY IP.id
@@ -70,7 +70,7 @@ ORDER BY COUNT(*) DESC;
 
 -- f) Print the titles of the 10 most reprinted stories
 
-SELECT DISTINCT S.title
+SELECT DISTINCT S.title AS most_reprinted_stories
 FROM Story S
 JOIN (
 	SELECT SR.origin_id
@@ -85,7 +85,7 @@ LIMIT 10;
 
 -- g) Print the artists that have scripted, drawn, and colored at least one of the stories they were involved in.
 
-SELECT A.name
+SELECT A.name AS artists
 FROM Artist A
 WHERE A.id IN (
 	SELECT DISTINCT S.artist_id
@@ -101,13 +101,12 @@ WHERE A.id IN (
 
 -- h)  Print all non-reprinted stories involving Batman as a non-featured character.
 
-SELECT DISTINCT S.title
+SELECT DISTINCT S.title AS stories
 FROM Story S
 WHERE S.feature<>'Batman' AND S.id IN (
 	SELECT CS.story_id
-	FROM Character_ C
-	JOIN Characters CS ON (CS.character_id=C.id)
-	WHERE C.name='Batman'
+	FROM Character_ C, Characters CS
+	WHERE CS.character_id=C.id AND C.name='Batman'
 ) AND S.id NOT IN (
 	SELECT SR.origin_id
 	FROM story_reprint SR
