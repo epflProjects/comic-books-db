@@ -91,7 +91,7 @@ app.post('/search', function(request, response) {
 
 app.get('/constructed', function(request, response) {
     if (request.query.q === 'belgian') {
-        connection.query("SELECT BG.name, COUNT(*) as Number FROM (SELECT BG.id, BG.name FROM Brand_Group BG JOIN Indicia_Publisher IP ON IP.publisher_id=BG.publisher_id WHERE IP.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Belgium')) AS BG GROUP BY BG.id ORDER BY COUNT(*) DESC;",
+        connection.query("SELECT BG.name FROM (SELECT BG.id, BG.name FROM Brand_Group BG JOIN Indicia_Publisher IP ON IP.publisher_id=BG.publisher_id WHERE IP.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Belgium')) AS BG GROUP BY BG.id ORDER BY COUNT(*) DESC LIMIT 15;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in Belgian query.");
@@ -136,7 +136,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'reprinted') {
-        connection.query("SELECT S.title FROM Story S WHERE S.id IN (SELECT SR.origin_id FROM story_reprint SR GROUP BY SR.origin_id ORDER BY COUNT(*) DESC) AND S.title <> 'NULL' LIMIT 10;",
+        connection.query("SELECT DISTINCT S.title FROM Story S JOIN (SELECT SR.origin_id FROM story_reprint SR GROUP BY SR.origin_id ORDER BY COUNT(*) DESC) AS SR ON S.id = SR.origin_id WHERE S.title <> 'NULL' LIMIT 10;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in reprinted query.");
@@ -163,7 +163,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'notFrequently') {
-        connection.query("SELECT DISTINCT Series.name FROM Series JOIN (SELECT I.series_id FROM Issue I JOIN (SELECT S.issue_id AS issue_id FROM Story S WHERE S.type_id <> ( SELECT S.type_id FROM Story S GROUP BY S.type_id ORDER BY COUNT(S.type_id) DESC LIMIT 1)) AS NEW_STORY ON I.id = NEW_STORY.issue_id) AS NEW_ISSUE ON Series.id = NEW_ISSUE.series_id;",
+        connection.query("SELECT DISTINCT S.name FROM Series S JOIN (SELECT I.series_id FROM Issue I JOIN (SELECT S.issue_id AS issue_id FROM Story S WHERE S.type_id <> ( SELECT S.type_id FROM Story S GROUP BY S.type_id ORDER BY COUNT(S.type_id) DESC LIMIT 1)) AS NEW_STORY ON I.id = NEW_STORY.issue_id) AS NEW_ISSUE ON Series.id = NEW_ISSUE.series_id;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in notFrequently query.");
@@ -172,7 +172,14 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'withTypes') {
-
+        connection.query("SELECT P.name AS publisher_names FROM Publisher P JOIN (SELECT PUBL_TYPE.publisher_id, COUNT(*) FROM (SELECT S.publisher_id, PT.id FROM Series S, Series_Publication_Type PT WHERE S.publication_type_id = PT.id GROUP BY S.publisher_id , PT.id) AS PUBL_TYPE GROUP BY PUBL_TYPE.publisher_id HAVING COUNT(*) = (SELECT COUNT(PT.id) FROM Series_Publication_Type PT)) AS PUBL ON P.id = PUBL.publisher_id ORDER BY P.name ASC;",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in withTypes query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'alanMoor') {
         connection.query("SELECT C.name FROM Character_ C JOIN (SELECT c.character_id FROM characters c JOIN (SELECT s.story_id FROM script s JOIN (SELECT A.id FROM Artist A WHERE A.name = 'Alan Moore' LIMIT 1) AS A ON s.artist_id=A.id) AS AM_STORIES ON c.story_id=AM_STORIES.story_id GROUP BY c.character_id ORDER BY COUNT(c.story_id) DESC LIMIT 10) AS MOST_REPR_CHAR ON C.id=MOST_REPR_CHAR.character_id;",
             function (error, rows, fields) {
@@ -185,105 +192,112 @@ app.get('/constructed', function(request, response) {
             });
     } else if (request.query.q === 'natureRelated') {
         connection.query("SELECT DISTINCT A.name FROM Artist A JOIN (SELECT SELECTED_STORIES.artist_id FROM (SELECT s.story_id, s.artist_id FROM script s JOIN (SELECT S.id FROM Story S WHERE S.genre like '%nature%') AS S ON s.story_id=S.id) as SELECTED_STORIES JOIN pencils p ON SELECTED_STORIES.story_id = p.story_id WHERE SELECTED_STORIES.artist_id = p.artist_id) AS NATURE_ARTISTS ON A.id=NATURE_ARTISTS.artist_id;",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in natureRelated query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in natureRelated query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'three') {
         connection.query("SELECT P.name as publisher, PL2.name as language FROM Publisher P JOIN (SELECT PL.publisher_id, L.name FROM Language L JOIN (SELECT S.publisher_id, S.language_id FROM Series S JOIN (SELECT S.publisher_id FROM Series S GROUP BY S.publisher_id ORDER BY COUNT(*) DESC LIMIT 10) AS TOP_10_PUBL ON S.publisher_id=TOP_10_PUBL.publisher_id GROUP BY S.publisher_id, S.language_id) AS PL ON L.id=PL.language_id) AS PL2 ON P.id=PL2.publisher_id;",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in three query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in three query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'magazines') {
         connection.query("SELECT L.name as language, BY_LANGUAGE.number_of_stories FROM Language L JOIN (SELECT MAG_ISSUES.language_id, COUNT(*) AS number_of_stories FROM Story St JOIN (SELECT I.id AS issue_id, MAGAZINES.id AS series_id, MAGAZINES.language_id FROM Issue I JOIN (SELECT S.id, S.language_id FROM Series S JOIN Series_Publication_Type SPT ON S.publication_type_id=SPT.id WHERE SPT.name = 'magazine') AS MAGAZINES ON I.series_id=MAGAZINES.id) AS MAG_ISSUES ON St.issue_id=MAG_ISSUES.issue_id GROUP BY MAG_ISSUES.language_id) AS BY_LANGUAGE ON L.id=BY_LANGUAGE.language_id ORDER BY BY_LANGUAGE.number_of_stories DESC;",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in magazines query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in magazines query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'italian') {
         connection.query("SELECT * FROM Story_Type ST WHERE ST.id NOT IN (SELECT DISTINCT St.type_id FROM Story St JOIN (SELECT I.id FROM Issue I JOIN (SELECT MAGAZINES.id FROM Country C JOIN (SELECT S.id, S.country_id FROM Series S JOIN Series_Publication_Type SPT ON S.publication_type_id=SPT.id WHERE SPT.name = 'magazine') AS MAGAZINES ON C.id=MAGAZINES.country_id WHERE C.name = 'Italy') AS ITALIAN_MAGAZINES ON I.series_id=ITALIAN_MAGAZINES.id) AS IM_ISSUES ON St.issue_id=IM_ISSUES.id);",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in italian query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in italian query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'cartoon') {
         connection.query("SELECT A.name FROM Artist A JOIN (SELECT ARTIST_WITH_IP.artist_id FROM(SELECT s.artist_id, WITH_IP.indicia_publisher_id FROM script s JOIN (SELECT I.indicia_publisher_id, CARTOON_STORIES.id FROM Issue I JOIN (SELECT S.id, S.issue_id FROM Story S JOIN (SELECT ST.id FROM Story_Type ST WHERE ST.name = 'cartoon') AS CARTOON_TYPE ON S.type_id = CARTOON_TYPE.id) AS CARTOON_STORIES ON I.id = CARTOON_STORIES.issue_id) AS WITH_IP ON s.story_id = WITH_IP.id GROUP BY s.artist_id, WITH_IP.indicia_publisher_id) AS ARTIST_WITH_IP GROUP BY ARTIST_WITH_IP.artist_id HAVING COUNT(*) > 1) AS ARTIST_WITH_MORE_THAN_ONE_IP ON A.id=ARTIST_WITH_MORE_THAN_ONE_IP.artist_id;",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in cartoon query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in cartoon query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'brandIndicia') {
         connection.query("SELECT BG.name FROM (SELECT BG.id, BG.name FROM Brand_Group BG JOIN Indicia_Publisher IP ON IP.publisher_id=BG.publisher_id) AS BG GROUP BY BG.id ORDER BY COUNT(*) DESC LIMIT 10;",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in brandIndicia query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in brandIndicia query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'seriesLength') {
         connection.query("SELECT IP.name AS indicia_publisher, IP_AVG.average_series_length FROM Indicia_Publisher IP JOIN (SELECT ISSUE_SERIES.indicia_publisher_id, AVG(ISSUE_SERIES.year_ended - ISSUE_SERIES.year_began) AS average_series_length FROM (SELECT S.id AS series_id, I.id AS issue_id, S.year_began, S.year_ended, I.indicia_publisher_id FROM Series S JOIN Issue I ON I.series_id=S.id) AS ISSUE_SERIES JOIN Indicia_Publisher IP ON IP.id=ISSUE_SERIES.indicia_publisher_id GROUP BY ISSUE_SERIES.indicia_publisher_id) AS IP_AVG ON IP_AVG.indicia_publisher_id=IP.id;",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in seriesLength query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in seriesLength query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'singleIssue') {
         connection.query("SELECT IP.name AS indicia_publisher FROM Indicia_Publisher IP JOIN (SELECT I.indicia_publisher_id FROM Issue I JOIN (SELECT I.series_id FROM Issue I GROUP BY I.series_id HAVING COUNT(*) = 1) AS SINGLE_ISSUES ON I.series_id = SINGLE_ISSUES.series_id WHERE I.indicia_publisher_id IS NOT NULL GROUP BY I.indicia_publisher_id ORDER BY COUNT(*) DESC LIMIT 10) AS TOP_IPS ON IP.id = TOP_IPS.indicia_publisher_id;",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in singleIssue query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in singleIssue query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'scriptWriters') {
         connection.query("SELECT IP.name AS indicia_publisher FROM Indicia_Publisher IP JOIN (SELECT DISTINCT I.indicia_publisher_id FROM Issue I JOIN (SELECT St.issue_id FROM Story St JOIN ( SELECT s.story_id FROM script s GROUP BY s.story_id ORDER BY COUNT(*) DESC) AS STORIES ON St.id = STORIES.story_id) AS ISSUES ON I.id = ISSUES.issue_id WHERE I.indicia_publisher_id IS NOT NULL LIMIT 10) AS TOP_IPS ON IP.id = TOP_IPS.indicia_publisher_id;",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in scriptWriters query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in scriptWriters query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'marvel') {
         connection.query("SELECT C.name as Marvel_heroes FROM Character_ C JOIN (SELECT DISTINCT c.character_id FROM characters c JOIN (SELECT St.id FROM Story St WHERE St.title LIKE '%Marvel%' AND St.title LIKE '%DC%') AS CROSSOVERS ON c.story_id = CROSSOVERS.id) AS CHARACTERS ON C.id = CHARACTERS.character_id;",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in marvel query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in marvel query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'five') {
         connection.query("SELECT S.id, S.name FROM Series S JOIN (SELECT I.series_id, COUNT(*) FROM Issue I GROUP BY I.series_id ORDER BY COUNT(*) DESC LIMIT 5) AS SERIES ON S.id = SERIES.series_id;",
-        function (error, rows, fields) {
-            if (error) {
-                console.log("Error in five query.");
-            } else {
-                responseOfConstructedQuery(rows, fields, response);
-            }
-        });
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in five query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     } else if (request.query.q === 'givenIssue') {
-
+        connection.query("SELECT MOST_REPR_WITH_STORY.issue_id AS given_issue, MIN(MOST_REPR_WITH_STORY.id) AS most_reprinted_story, MOST_REPR_WITH_STORY.reprint_count FROM (SELECT ISSUE_WITH_COUNT.issue_id, MAX(ISSUE_WITH_COUNT.reprint_count) AS reprint_max FROM (SELECT DISTINCT St.issue_id, REPRINTS.reprint_count FROM Story St JOIN (SELECT sr.origin_id, COUNT(*) AS reprint_count FROM story_reprint sr GROUP BY sr.origin_id ORDER BY COUNT(*) DESC) AS REPRINTS ON St.id = REPRINTS.origin_id) AS ISSUE_WITH_COUNT GROUP BY ISSUE_WITH_COUNT.issue_id) AS MOST_REPR JOIN (SELECT St.issue_id, St.id, REPRINTS.reprint_count FROM Story St JOIN (SELECT sr.origin_id, COUNT(*) AS reprint_count FROM story_reprint sr GROUP BY sr.origin_id ORDER BY COUNT(*) DESC) AS REPRINTS ON St.id = REPRINTS.origin_id ORDER BY St.issue_id) AS MOST_REPR_WITH_STORY ON MOST_REPR_WITH_STORY.issue_id = MOST_REPR.issue_id AND MOST_REPR_WITH_STORY.reprint_count = MOST_REPR.reprint_max GROUP BY MOST_REPR_WITH_STORY.issue_id, MOST_REPR_WITH_STORY.reprint_count ORDER BY MOST_REPR_WITH_STORY.issue_id;",
+            function (error, rows, fields) {
+                if (error) {
+                    console.log("Error in givenIssue query.");
+                } else {
+                    responseOfConstructedQuery(rows, fields, response);
+                }
+            });
     }
 });
 
