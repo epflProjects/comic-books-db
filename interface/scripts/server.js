@@ -91,7 +91,7 @@ app.post('/search', function(request, response) {
 
 app.get('/constructed', function(request, response) {
     if (request.query.q === 'belgian') {
-        connection.query("SELECT BG.name FROM (SELECT BG.id, BG.name FROM Brand_Group BG JOIN Indicia_Publisher IP ON IP.publisher_id=BG.publisher_id WHERE IP.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Belgium')) AS BG GROUP BY BG.id ORDER BY COUNT(*) DESC LIMIT 15;",
+        connection.query("SELECT BG.name AS brand_groups FROM (SELECT BG.id, BG.name FROM Brand_Group BG JOIN Indicia_Publisher IP ON IP.publisher_id=BG.publisher_id WHERE IP.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Belgium')) AS BG GROUP BY BG.id ORDER BY COUNT(*) DESC LIMIT 15;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in Belgian query.");
@@ -100,7 +100,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'danish') {
-        connection.query("SELECT P.id, P.name FROM Publisher P WHERE P.id IN (SELECT S.publisher_id FROM Series S WHERE S.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Denmark') AND S.publication_type_id IN (SELECT SPT.id FROM Series_Publication_Type SPT WHERE SPT.name = 'book'));",
+        connection.query("SELECT P.id AS publisher_id, P.name AS publisher_name FROM Publisher P WHERE P.id IN (SELECT S.publisher_id FROM Series S WHERE S.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Denmark') AND S.publication_type_id IN ( SELECT SPT.id FROM Series_Publication_Type SPT WHERE SPT.name = 'book'));",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in Danish query.");
@@ -109,7 +109,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'swiss') {
-        connection.query("SELECT S.name FROM Series S WHERE S.country_id IN (SELECT C.id FROM Country C WHERE C.name = 'Switzerland') AND S.publication_type_id IN (SELECT PT.id FROM Series_Publication_Type PT WHERE PT.name = 'magazine');",
+        connection.query("SELECT S.name AS magazines_swiss_series_names FROM Series S WHERE S.country_id IN ( SELECT C.id FROM Country C WHERE C.name = 'Switzerland' ) AND S.publication_type_id IN ( SELECT PT.id FROM Series_Publication_Type PT WHERE PT.name = 'magazine');",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in Swiss query.");
@@ -118,7 +118,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q ==='1990') {
-        connection.query("SELECT I.publication_date, COUNT(*) as Number FROM Issue I WHERE I.publication_date >= 1990 AND I.publication_date <=2017 GROUP BY I.publication_date ORDER BY I.publication_date ASC;",
+        connection.query("SELECT I.publication_date AS year, COUNT(*) AS number_of_issues FROM Issue I WHERE I.publication_date >= 1990 AND I.publication_date <=2017 GROUP BY I.publication_date ORDER BY I.publication_date ASC;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Erreur ma gueule.");
@@ -127,7 +127,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'dcComics') {
-        connection.query("SELECT IP.name, COUNT(DISTINCT(I.series_id)) FROM Indicia_Publisher IP, Issue I WHERE IP.id = I.indicia_publisher_id AND IP.name like '%dc comics%' GROUP BY IP.id ORDER BY COUNT(*) DESC;",
+        connection.query("SELECT IP.name AS indicia_publisher, COUNT(DISTINCT(I.series_id)) AS number_of_series FROM Indicia_Publisher IP, Issue I WHERE IP.id = I.indicia_publisher_id AND IP.name LIKE '%dc comics%' GROUP BY IP.id ORDER BY COUNT(*) DESC;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in DC Comics query.");
@@ -136,7 +136,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'reprinted') {
-        connection.query("SELECT DISTINCT S.title FROM Story S JOIN (SELECT SR.origin_id FROM story_reprint SR GROUP BY SR.origin_id ORDER BY COUNT(*) DESC) AS SR ON S.id = SR.origin_id WHERE S.title <> 'NULL' LIMIT 10;",
+        connection.query("SELECT DISTINCT S.title AS most_reprinted_stories FROM Story S JOIN ( SELECT SR.origin_id FROM story_reprint SR GROUP BY SR.origin_id ORDER BY COUNT(*) DESC ) AS SR ON S.id = SR.origin_id WHERE S.title <> 'NULL' LIMIT 10;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in reprinted query.");
@@ -145,7 +145,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'artist') {
-        connection.query("SELECT A.name FROM Artist A WHERE A.id IN (SELECT DISTINCT S.artist_id FROM script S) AND A.id IN (SELECT DISTINCT P.artist_id FROM pencils P) AND A.id IN ( SELECT DISTINCT C.artist_id FROM colors C);",
+        connection.query("SELECT A.name AS artists FROM Artist A WHERE A.id IN ( SELECT DISTINCT S.artist_id FROM script S ) AND A.id IN ( SELECT DISTINCT P.artist_id FROM pencils P ) AND A.id IN ( SELECT DISTINCT C.artist_id FROM colors C );",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in artist query.");
@@ -154,7 +154,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'batman') {
-        connection.query("SELECT DISTINCT S.title FROM Story S WHERE S.feature<>'Batman' AND S.id IN (SELECT CS.story_id FROM Character_ C JOIN Characters CS ON (CS.character_id=C.id) WHERE C.name='Batman') AND S.id NOT IN (SELECT SR.origin_id FROM story_reprint SR);",
+        connection.query("SELECT DISTINCT S.title AS stories FROM Story S WHERE S.feature<>'Batman' AND S.id IN ( SELECT CS.story_id FROM Character_ C, Characters CS WHERE CS.character_id=C.id AND C.name='Batman' ) AND S.id NOT IN ( SELECT SR.origin_id FROM story_reprint SR );",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in batman query.");
