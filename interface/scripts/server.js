@@ -118,7 +118,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q ==='1990') {
-        connection.query("SELECT I.publication_date AS year, COUNT(*) AS number_of_issues FROM Issue I WHERE I.publication_date >= 1990 AND I.publication_date <=2017 GROUP BY I.publication_date ORDER BY I.publication_date ASC;",
+        connection.query("SELECT I.publication_date AS year, COUNT(*) AS number_of_issues FROM Issue I WHERE I.publication_date >= 1990 AND I.publication_date <=2017 GROUP BY I.publication_date;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Erreur ma gueule.");
@@ -145,7 +145,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'artist') {
-        connection.query("SELECT A.name AS artists FROM Artist A WHERE A.id IN ( SELECT DISTINCT S.artist_id FROM script S ) AND A.id IN ( SELECT DISTINCT P.artist_id FROM pencils P ) AND A.id IN ( SELECT DISTINCT C.artist_id FROM colors C );",
+        connection.query("SELECT DISTINCT A.name AS artists FROM Artist A, script S, pencils P, colors C WHERE S.story_id = P.story_id AND P.story_id = C.story_id  AND A.id = S.artist_id AND A.id = P.artist_id AND A.id = C.artist_id;",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in artist query.");
@@ -154,7 +154,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'batman') {
-        connection.query("SELECT DISTINCT S.title AS stories FROM Story S WHERE S.feature<>'Batman' AND S.id IN ( SELECT CS.story_id FROM Character_ C, Characters CS WHERE CS.character_id=C.id AND C.name='Batman' ) AND S.id NOT IN ( SELECT SR.origin_id FROM story_reprint SR );",
+        connection.query("SELECT DISTINCT S.title AS stories FROM Story S WHERE S.feature NOT LIKE '%Batman%' AND S.id IN ( SELECT CS.story_id FROM Character_ C, Characters CS WHERE CS.character_id=C.id AND C.name='Batman' ) AND S.id NOT IN ( SELECT SR.target_id FROM story_reprint SR) AND S.title <> 'NULL';",
             function (error, rows, fields) {
                 if (error) {
                     console.log("Error in batman query.");
