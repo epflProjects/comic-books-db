@@ -1,4 +1,5 @@
 -- a)  Print the brand group names with the highest number of Belgian indicia publishers.
+-- 1.7ms
 
 SELECT BG.name AS brand_groups
 FROM (
@@ -17,6 +18,7 @@ LIMIT 15;
 
 
 -- b)  Print the ids and names of publishers of Danish book series.
+-- 12.9ms
 
 SELECT P.id AS publisher_id, P.name AS publisher_name
 FROM Publisher P
@@ -36,6 +38,7 @@ WHERE P.id IN (
 
 
 -- c)  Print the names of all Swiss series that have been published in magazines.
+-- 2.6ms
 
 SELECT S.name AS magazines_swiss_series_names
 FROM Series S
@@ -51,15 +54,15 @@ WHERE S.country_id IN (
 
 
 -- d)  Starting from 1990, print the number of issues published each year.
+-- 496ms
 
 SELECT I.publication_date AS year, COUNT(*) AS number_of_issues
 FROM Issue I
 WHERE I.publication_date >= 1990 AND I.publication_date <=2017
-GROUP BY I.publication_date
-ORDER BY I.publication_date ASC;
-
+GROUP BY I.publication_date;
 
 -- e) Print the number of series for each indicia publisher whose name resembles ‘DC comics’.
+-- 258ms
 
 SELECT IP.name AS indicia_publisher, COUNT(DISTINCT(I.series_id)) AS number_of_series
 FROM Indicia_Publisher IP, Issue I
@@ -69,6 +72,7 @@ ORDER BY COUNT(*) DESC;
 
 
 -- f) Print the titles of the 10 most reprinted stories
+-- 252ms
 
 SELECT DISTINCT S.title AS most_reprinted_stories
 FROM Story S
@@ -84,31 +88,25 @@ LIMIT 10;
 
 
 -- g) Print the artists that have scripted, drawn, and colored at least one of the stories they were involved in.
+-- 1.42s
 
-SELECT A.name AS artists
-FROM Artist A
-WHERE A.id IN (
-	SELECT DISTINCT S.artist_id
-	FROM script S
-) AND A.id IN (
-	SELECT DISTINCT P.artist_id
-	FROM pencils P
-) AND A.id IN (
-	SELECT DISTINCT C.artist_id
-	FROM colors C
-);
+SELECT DISTINCT A.name AS artists
+FROM Artist A, script S, pencils P, colors C
+WHERE S.story_id = P.story_id AND P.story_id = C.story_id 
+AND A.id = S.artist_id AND A.id = P.artist_id AND A.id = C.artist_id;
 
 
 -- h)  Print all non-reprinted stories involving Batman as a non-featured character.
+-- 656 ms
 
 SELECT DISTINCT S.title AS stories
 FROM Story S
-WHERE S.feature<>'Batman' AND S.id IN (
+WHERE S.feature NOT LIKE '%Batman%' AND S.id IN (
 	SELECT CS.story_id
 	FROM Character_ C, Characters CS
 	WHERE CS.character_id=C.id AND C.name='Batman'
 ) AND S.id NOT IN (
-	SELECT SR.origin_id
+	SELECT SR.target_id
 	FROM story_reprint SR
-);
+) AND S.title <> 'NULL';
 
