@@ -135,7 +135,8 @@ JOIN (
 			WHERE SPT.name = 'magazine') AS MAGAZINES
 		ON I.series_id = MAGAZINES.id) AS MAG_ISSUES
 	ON St.issue_id = MAG_ISSUES.issue_id
-	GROUP BY MAG_ISSUES.language_id) AS BY_LANGUAGE
+	GROUP BY MAG_ISSUES.language_id
+	HAVING number_of_stories >= 10000) AS BY_LANGUAGE
 ON L.id = BY_LANGUAGE.language_id
 ORDER BY BY_LANGUAGE.number_of_stories DESC;
 
@@ -200,13 +201,10 @@ ON A.id=ARTIST_WITH_MORE_THAN_ONE_IP.artist_id;
 
 -- i)  Print the 10 brand groups with the highest number of indicia publishers. 
 
-SELECT BG.name AS brand_groups
-FROM (
-	SELECT BG.id, BG.name
-	FROM Brand_Group BG
-	JOIN Indicia_Publisher IP ON IP.publisher_id=BG.publisher_id
-) AS BG
-GROUP BY BG.id
+SELECT BG.id, BG.name, COUNT(*)
+FROM Brand_Group BG, Indicia_Publisher IP
+WHERE IP.publisher_id=BG.publisher_id
+GROUP BY BG.id, BG.name
 ORDER BY COUNT(*) DESC
 LIMIT 10;
 
@@ -273,6 +271,7 @@ ON IP.id = TOP_IPS.indicia_publisher_id;
 
 
 -- m)  Print all Marvel heroes that appear in Marvel-DC story crossovers. 
+-- /!\ heros que marvel
 
 SELECT C.name as Marvel_heroes
 FROM Character_ C
