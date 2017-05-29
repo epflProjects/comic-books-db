@@ -1,7 +1,7 @@
 -- a)  Print the series names that have the highest number of issues which contain a story whose type (e.g.,cartoon) is not the one occurring most frequently in the database (e.g, illustration). 
--- [Optimize !]
+-- 27.2s
 
-SELECT DISTINCT S.name AS series_names
+SELECT S.name AS series_names
 FROM Series S
 JOIN (
 	SELECT I.series_id
@@ -23,6 +23,7 @@ LIMIT 15;
 
 
 -- b)  Print the names of publishers who have series with all series types. 
+-- 87.2ms
 
 SELECT P.name AS publisher_names
 FROM Publisher P
@@ -42,6 +43,7 @@ ORDER BY P.name ASC;
 
 
 -- c)  Print the 10 most-reprinted characters from Alan Moore's stories. 
+-- 12.2ms
 
 SELECT C.name AS alan_moore_most_reprinted_characters
 FROM Character_ C
@@ -65,6 +67,7 @@ ON C.id=MOST_REPR_CHAR.character_id;
 
 
 -- d)  Print the writers of nature-related stories that have also done the pencilwork in all their nature-related stories. 
+-- 875ms
 
 SELECT DISTINCT A.name AS writers
 FROM Artist A
@@ -85,6 +88,7 @@ ON A.id = NATURE_ARTISTS.artist_id;
 
 -- e)  For each of the top-10 publishers in terms of published series, print the 3 most popular languages of their series. 
 -- [Select only 3 languages]
+-- 104ms
 
 SELECT P.name AS publisher, PL2.name AS language
 FROM Publisher P
@@ -118,6 +122,7 @@ ON P.id = PL2.publisher_id;
 
 
 -- f)  Print the languages that have more than 10000 original stories published in magazines, along with the number of those stories. 
+-- 1.84s
 
 SELECT L.name as language, BY_LANGUAGE.number_of_stories
 FROM Language L
@@ -142,6 +147,7 @@ ORDER BY BY_LANGUAGE.number_of_stories DESC;
 
 
 -- g)  Print all story types that have not been published as a part of Italian magazine series. 
+-- 133ms
 
 SELECT ST.name AS story_type
 FROM Story_Type ST
@@ -168,6 +174,7 @@ WHERE ST.id NOT IN (
 
 
 -- h)  Print the writers of cartoon stories who have worked as writers for more than one indicia publisher. 
+-- 459ms
 
 SELECT A.name AS writers
 FROM Artist A
@@ -200,6 +207,7 @@ ON A.id=ARTIST_WITH_MORE_THAN_ONE_IP.artist_id;
 
 
 -- i)  Print the 10 brand groups with the highest number of indicia publishers. 
+-- 43.8ms
 
 SELECT BG.id, BG.name, COUNT(*)
 FROM Brand_Group BG, Indicia_Publisher IP
@@ -210,6 +218,7 @@ LIMIT 10;
 
 
 -- j)  Print the average series length (in terms of years) per indicia publisher. 
+-- 8.01s
 
 SELECT IP.name AS indicia_publisher, IP_AVG.average_series_length
 FROM Indicia_Publisher IP
@@ -225,6 +234,7 @@ ON IP_AVG.indicia_publisher_id = IP.id;
 
 
 -- k)  Print the top 10 indicia publishers that have published the most single-issue series. 
+-- 1.03.s
 
 SELECT IP.name AS indicia_publisher
 FROM Indicia_Publisher IP
@@ -247,6 +257,7 @@ ON IP.id = TOP_IPS.indicia_publisher_id;
 
 
 -- l)  Print the 10 indicia publishers with the highest number of script writers in a single story. 
+-- 1.55s
 
 SELECT IP.name AS indicia_publisher
 FROM Indicia_Publisher IP
@@ -271,7 +282,7 @@ ON IP.id = TOP_IPS.indicia_publisher_id;
 
 
 -- m)  Print all Marvel heroes that appear in Marvel-DC story crossovers. 
--- /!\ heros que marvel
+-- 2.16s
 
 SELECT C.name as Marvel_heroes
 FROM Character_ C
@@ -281,14 +292,25 @@ JOIN (
 	JOIN (
 		SELECT St.id
 		FROM Story St
-		WHERE St.title LIKE '%Marvel%' AND St.title LIKE '%DC%'
+		WHERE St.title LIKE '%Marvel%' AND (St.title LIKE '%DC %' OR St.title LIKE '% DC%' OR St.title LIKE '%DC/%')
 	) AS CROSSOVERS
 	ON c.story_id = CROSSOVERS.id
 ) AS CHARACTERS
-ON C.id = CHARACTERS.character_id;
+ON C.id = CHARACTERS.character_id
+WHERE CHARACTERS.character_id IN (
+	SELECT DISTINCT c.character_id
+	FROM characters c
+	JOIN (
+		SELECT St.id
+		FROM Story St
+		WHERE St.title LIKE '%Marvel%' AND St.title NOT LIKE '%DC%'
+	) AS MARVEL_ST
+	ON c.story_id = MARVEL_ST.id
+);
 
 
 -- n)  Print the top 5 series with most issues 
+-- 330ms
 
 SELECT S.id AS series_id, S.name
 FROM Series S
@@ -303,6 +325,7 @@ ON S.id = SERIES.series_id;
 
 
 -- o)  Given an issue, print its most reprinted story
+-- 0.6ms
 
 SELECT I.id AS issue_id, I.title AS issue_title, St.id AS most_reprinted_story_id, St.title AS most_reprinted_story, COUNT(*) AS number_of_reprints
 FROM Issue I, Story St, story_reprint sr
@@ -313,7 +336,17 @@ LIMIT 1;
 
 
 
--- o with list of all issues and corresponding most reprinted story
+
+
+
+
+
+
+
+
+
+-- o alternative with list of all issues and corresponding most reprinted story
+-- 6.19s
 
 SELECT MOST_REPR_WITH_STORY.issue_id AS given_issue, MIN(MOST_REPR_WITH_STORY.id) AS most_reprinted_story, MOST_REPR_WITH_STORY.reprint_count
 FROM (
