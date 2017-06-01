@@ -1,5 +1,6 @@
 <!doctype html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -19,49 +20,50 @@
     <script src="scripts/ext/jquery.js"></script>
 
 </head>
+
 <body>
-<!-- Black topbar -->
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+    <!-- Black topbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="index.html">Database</a>
+                <a class="navbar-brand" href="index.html">Database</a>
+            </div>
+
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="index.html">Search</a></li>
+                    <li class="active"><a href="#">Insert/Delete<span class="sr-only">(current)</span></a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content of the Page -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header" id="page_header">
+            <h1>Comic Books <small>Insert/Delete</small></h1>
         </div>
 
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="index.html">Search</a></li>
-                <li class="active"><a href="#">Insert/Delete<span class="sr-only">(current)</span></a></li>
-                <li><a href="about.html">About</a></li>
+        <div id="tabs">
+            <!-- Delete/Insert Tabs -->
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="active" href="#tabs-insert"><a data-toggle="tab" href="#tabs-insert">Insert</a></li>
+                <li role="presentation"><a data-toggle="tab" href="#tabs-delete">Delete</a></li>
             </ul>
-        </div>
-    </div>
-</nav>
-
-<!-- Content of the Page -->
-<div class="container">
-    <!-- Page Header -->
-    <div class="page-header" id="page_header">
-        <h1>Comic Books <small>Insert/Delete</small></h1>
-    </div>
-
-    <div id="tabs">
-        <!-- Delete/Insert Tabs -->
-        <ul class="nav nav-tabs">
-            <li role="presentation" class="active" href="#tabs-insert"><a data-toggle="tab" href="#tabs-insert">Insert</a></li>
-            <li role="presentation"><a data-toggle="tab" href="#tabs-delete">Delete</a></li>
-        </ul>
-        <div class="tab-content">
-            <!-- Insert Tab -->
-            <div id="tabs-insert" class="tab-pane fade in active">
-                <h4>Choose a table:</h4>
-                <div id="tabs-insert_tables">
-                    <select class="form-control" id="insert_search_by">
+            <div class="tab-content">
+                <!-- Insert Tab -->
+                <div id="tabs-insert" class="tab-pane fade in active">
+                    <h4>Choose a table:</h4>
+                    <div id="tabs-insert_tables">
+                        <select class="form-control" id="insert_search_by">
                         <option value="" selected disabled></option>
                         <option value="0">Artist</option>
                         <option value="1">Brand Group</option>
@@ -83,23 +85,23 @@
                         <option value="17">Story Reprint</option>
                         <option value="18">Story Type</option>
                     </select>
+                    </div>
+
+                    <div>
+                        <form id="insert_form">
+                        </form>
+                    </div>
+
+                    <br>
+
+                    <div id="insert_alert"></div>
                 </div>
 
-                <div>
-                    <form id="insert_form">
-                    </form>
-                </div>
-
-                <br>
-
-                <div id="insert_alert"></div>
-            </div>
-
-            <!-- Delete Tab -->
-            <div id="tabs-delete" class="tab-pane fade">
-                <h4>Choose a table in which:</h4>
-                <div id="tabs-delete_tables">
-                    <select class="form-control" id="delete_search_by">
+                <!-- Delete Tab -->
+                <div id="tabs-delete" class="tab-pane fade">
+                    <h4>Choose a table in which:</h4>
+                    <div id="tabs-delete_tables">
+                        <select class="form-control" id="delete_search_by">
                         <option value="" selected disabled></option>
                         <option value="0">Artist</option>
                         <option value="1">Brand Group</option>
@@ -121,37 +123,39 @@
                         <option value="17">Story Reprint</option>
                         <option value="18">Story Type</option>
                     </select>
+                    </div>
+
+                    <div>
+                        <form id="delete_form">
+                        </form>
+                    </div>
+
+                    <br>
+
+                    <div id="delete_alert"></div>
                 </div>
-
-                <div>
-                    <form id="delete_form">
-                    </form>
-                </div>
-
-                <br>
-
-                <div id="delete_alert"></div>
             </div>
         </div>
+
+
+        <!-- Search Fields -->
+        <div class="row">
+        </div>
+
     </div>
 
 
-    <!-- Search Fields -->
-    <div class="row">
-    </div>
+    <!-- javascript -->
+    <script src="scripts/insertDelete.js"></script>
 
-</div>
-
-
-<!-- javascript -->
-<script src="scripts/insertDelete.js"></script>
-
-<!-- Bootstrap core JavaScript
+    <!-- Bootstrap core JavaScript
 ================================================== -->
-<!-- Placed at the end of the document so the pages load faster -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="styles/framework/bootstrap-3.3.7/assets/js/vendor/jquery.min.js"><\/script>')</script>
-<script src="bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+        window.jQuery || document.write('<script src="styles/framework/bootstrap-3.3.7/assets/js/vendor/jquery.min.js"><\/script>')
+    </script>
+    <script src="bootstrap/dist/js/bootstrap.min.js"></script>
 </body>
 
 </html>

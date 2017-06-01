@@ -67,23 +67,23 @@ function queryResult(httpQuery) {
         table.DataTable().destroy();
         table.empty();
     }
-    $("#output_table th").each(function () {
+    $("#output_table th").each(function() {
         this.remove();
     });
-    $("#output_table td").each(function () {
+    $("#output_table td").each(function() {
         this.remove();
     });
-    $("#output_table tr").each(function () {
+    $("#output_table tr").each(function() {
         this.remove();
     });
-    $("#output_table thead").each(function () {
+    $("#output_table thead").each(function() {
         this.remove();
     });
-    $("#output_table tbody").each(function () {
+    $("#output_table tbody").each(function() {
         this.remove();
     });
 
-    $.get('constructed?q='+httpQuery, function (data) {
+    $.get('constructed?q=' + httpQuery, function(data) {
         table.append("<thead id='output_table_head'></thead>");
         table.append("<tbody id='output_table_body'></tbody>");
 
@@ -93,14 +93,14 @@ function queryResult(httpQuery) {
 
         stringToAppend = "<tr>";
         for (let i in data.attributes_name) {
-            stringToAppend += "<th>"+data.attributes_name[i]+"</th>";
+            stringToAppend += "<th>" + data.attributes_name[i] + "</th>";
         }
         stringToAppend += "</tr>";
         tableH.append(stringToAppend);
         for (let i in data.rows) {
             stringToAppend = "<tr>";
             for (let j in data.attributes_name) {
-                stringToAppend += "<td>"+data.rows[i][data.attributes_name[j]]+"</td>";
+                stringToAppend += "<td>" + data.rows[i][data.attributes_name[j]] + "</td>";
             }
             stringToAppend += "</tr>";
             tableB.append(stringToAppend);
@@ -108,7 +108,7 @@ function queryResult(httpQuery) {
 
         // Output Table Initialisation
         $("#output_table").DataTable({
-            bSort:false,
+            bSort: false,
             paging: true,
             _fixedHeader: true,
             searching: false,
@@ -119,9 +119,15 @@ function queryResult(httpQuery) {
             scrollY: "30vh",
             scroller: true,
             overflow: "auto",
-            aoColumnDefs: [
-                {"bSearchable": false, "aTargets": ['_all']},
-                {"bSortable": false, "aTargets": ['_all']} ]
+            aoColumnDefs: [{
+                    "bSearchable": false,
+                    "aTargets": ['_all']
+                },
+                {
+                    "bSortable": false,
+                    "aTargets": ['_all']
+                }
+            ]
         });
     });
 }
