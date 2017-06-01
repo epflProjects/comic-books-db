@@ -327,7 +327,8 @@ ON S.id = SERIES.series_id;
 -- o)  Given an issue, print its most reprinted story
 -- 0.6ms
 
-SELECT I.id AS issue_id, I.title AS issue_title, St.id AS most_reprinted_story_id, St.title AS most_reprinted_story, COUNT(*) AS number_of_reprints
+SELECT I.id AS issue_id, I.title AS issue_title, St.id AS most_reprinted_story_id, 
+St.title AS most_reprinted_story, COUNT(*) AS number_of_reprints
 FROM Issue I, Story St, story_reprint sr
 WHERE I.id = 968363 AND St.id = sr.origin_id AND St.issue_id = I.id
 GROUP BY St.id
@@ -345,7 +346,7 @@ LIMIT 1;
 
 
 
--- o alternative with list of all issues and corresponding most reprinted story
+-- [o alternative] with list of all issues and corresponding most reprinted story
 -- 6.19s
 
 SELECT MOST_REPR_WITH_STORY.issue_id AS given_issue, MIN(MOST_REPR_WITH_STORY.id) AS most_reprinted_story, MOST_REPR_WITH_STORY.reprint_count
