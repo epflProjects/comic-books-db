@@ -207,15 +207,15 @@ ON A.id=ARTIST_WITH_MORE_THAN_ONE_IP.artist_id;
 
 
 -- i)  Print the 10 brand groups with the highest number of indicia publishers. 
--- 43.8ms
+-- 15.4ms
 
-SELECT BG.id, BG.name, COUNT(*)
-FROM Brand_Group BG, Indicia_Publisher IP
-WHERE IP.publisher_id=BG.publisher_id
-GROUP BY BG.id, BG.name
+SELECT BG.name
+FROM Brand_Group BG
+JOIN Indicia_Publisher IP 
+ON IP.publisher_id = BG.publisher_id
+GROUP BY BG.id
 ORDER BY COUNT(*) DESC
 LIMIT 10;
-
 
 -- j)  Print the average series length (in terms of years) per indicia publisher. 
 -- 8.01s
