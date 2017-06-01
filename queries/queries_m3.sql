@@ -207,15 +207,15 @@ ON A.id=ARTIST_WITH_MORE_THAN_ONE_IP.artist_id;
 
 
 -- i)  Print the 10 brand groups with the highest number of indicia publishers. 
--- 43.8ms
+-- 15.4ms
 
-SELECT BG.id, BG.name, COUNT(*)
-FROM Brand_Group BG, Indicia_Publisher IP
-WHERE IP.publisher_id=BG.publisher_id
-GROUP BY BG.id, BG.name
+SELECT BG.name
+FROM Brand_Group BG
+JOIN Indicia_Publisher IP 
+ON IP.publisher_id = BG.publisher_id
+GROUP BY BG.id
 ORDER BY COUNT(*) DESC
 LIMIT 10;
-
 
 -- j)  Print the average series length (in terms of years) per indicia publisher. 
 -- 8.01s
@@ -327,7 +327,8 @@ ON S.id = SERIES.series_id;
 -- o)  Given an issue, print its most reprinted story
 -- 0.6ms
 
-SELECT I.id AS issue_id, I.title AS issue_title, St.id AS most_reprinted_story_id, St.title AS most_reprinted_story, COUNT(*) AS number_of_reprints
+SELECT I.id AS issue_id, I.title AS issue_title, St.id AS most_reprinted_story_id, 
+St.title AS most_reprinted_story, COUNT(*) AS number_of_reprints
 FROM Issue I, Story St, story_reprint sr
 WHERE I.id = 968363 AND St.id = sr.origin_id AND St.issue_id = I.id
 GROUP BY St.id
@@ -345,7 +346,7 @@ LIMIT 1;
 
 
 
--- o alternative with list of all issues and corresponding most reprinted story
+-- [o alternative] with list of all issues and corresponding most reprinted story
 -- 6.19s
 
 SELECT MOST_REPR_WITH_STORY.issue_id AS given_issue, MIN(MOST_REPR_WITH_STORY.id) AS most_reprinted_story, MOST_REPR_WITH_STORY.reprint_count
