@@ -87,7 +87,6 @@ ON A.id = NATURE_ARTISTS.artist_id;
 
 
 -- e)  For each of the top-10 publishers in terms of published series, print the 3 most popular languages of their series. 
--- [Select only 3 languages]
 -- 104ms
 
 SELECT P.name AS publisher, PL2.name AS language
@@ -96,28 +95,30 @@ JOIN (
 	SELECT PL.publisher_id, L.name
 	FROM Language L
 	JOIN (
-		SELECT S.publisher_id, S.language_id
-		FROM Series S
-		JOIN (
-			SELECT S.publisher_id
-			FROM Series S
-			GROUP BY S.publisher_id
-			ORDER BY COUNT(*) DESC
-			LIMIT 10
-		) AS TOP_10_PUBL
-		ON S.publisher_id = TOP_10_PUBL.publisher_id
-		GROUP BY S.publisher_id, S.language_id
- 	-- 	HAVING S.language_id IN (
-		-- 	SELECT S1.language_id
-		-- 	FROM Series S1
-		-- 	WHERE S1.publisher_id = S.publisher_id
-		-- 	GROUP BY S1.language_id
-		-- 	ORDER BY COUNT(*) DESC
-		-- 	LIMIT 3
-		-- )
-		ORDER BY S.publisher_id ASC, COUNT(*) DESC	) AS PL
-	ON L.id = PL.language_id
-) AS PL2
+		SELECT LANGUAGE_GROUPED.publisher_id, LANGUAGE_GROUPED.language_id, LANGUAGE_GROUPED.series_count
+		FROM (
+			SELECT PUBL_LANGU.publisher_id, PUBL_LANGU.language_id, COUNT(*) AS series_count
+			FROM (
+				SELECT S.publisher_id, S.language_id
+				FROM Series S
+				JOIN (
+					SELECT S.publisher_id
+					FROM Series S
+					GROUP BY S.publisher_id
+					ORDER BY COUNT(*) DESC
+					LIMIT 10) AS TOP_10_PUBL
+				ON S.publisher_id = TOP_10_PUBL.publisher_id) AS PUBL_LANGU
+				GROUP BY PUBL_LANGU.publisher_id, PUBL_LANGU.language_id
+				ORDER BY PUBL_LANGU.publisher_id ASC, COUNT(*) DESC) AS LANGUAGE_GROUPED
+			WHERE(
+				SELECT COUNT(*)
+				FROM(
+					SELECT S.publisher_id, S.language_id, COUNT(*) AS language_by_publisher_count
+					FROM Series S
+					GROUP BY S.publisher_id, S.language_id) AS LANGUAGE_COUNT_BY_PUBLISHER
+				WHERE LANGUAGE_COUNT_BY_PUBLISHER.publisher_id = LANGUAGE_GROUPED.publisher_id  
+				AND series_count <= language_by_publisher_count) < 4) AS PL
+	ON L.id = PL.language_id) AS PL2
 ON P.id = PL2.publisher_id;
 
 
