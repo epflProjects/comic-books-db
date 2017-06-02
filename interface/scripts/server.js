@@ -200,7 +200,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'three') {
-        connection.query("SELECT P.name as publisher, PL2.name as language FROM Publisher P JOIN (SELECT PL.publisher_id, L.name FROM Language L JOIN (SELECT S.publisher_id, S.language_id FROM Series S JOIN (SELECT S.publisher_id FROM Series S GROUP BY S.publisher_id ORDER BY COUNT(*) DESC LIMIT 10) AS TOP_10_PUBL ON S.publisher_id=TOP_10_PUBL.publisher_id GROUP BY S.publisher_id, S.language_id) AS PL ON L.id=PL.language_id) AS PL2 ON P.id=PL2.publisher_id;",
+        connection.query("SELECT P.name AS publisher, PL2.name AS language FROM Publisher P JOIN ( SELECT PL.publisher_id, L.name FROM Language L JOIN ( SELECT LANGUAGE_GROUPED.publisher_id, LANGUAGE_GROUPED.language_id, LANGUAGE_GROUPED.series_count FROM ( SELECT PUBL_LANGU.publisher_id, PUBL_LANGU.language_id, COUNT(*) AS series_count FROM ( SELECT S.publisher_id, S.language_id FROM Series S JOIN ( SELECT S.publisher_id FROM Series S GROUP BY S.publisher_id ORDER BY COUNT(*) DESC LIMIT 10) AS TOP_10_PUBL ON S.publisher_id = TOP_10_PUBL.publisher_id) AS PUBL_LANGU GROUP BY PUBL_LANGU.publisher_id, PUBL_LANGU.language_id ORDER BY PUBL_LANGU.publisher_id ASC, COUNT(*) DESC) AS LANGUAGE_GROUPED WHERE( SELECT COUNT(*) FROM( SELECT S.publisher_id, S.language_id, COUNT(*) AS language_by_publisher_count FROM Series S GROUP BY S.publisher_id, S.language_id) AS LANGUAGE_COUNT_BY_PUBLISHER WHERE LANGUAGE_COUNT_BY_PUBLISHER.publisher_id = LANGUAGE_GROUPED.publisher_id   AND series_count <= language_by_publisher_count) < 4) AS PL ON L.id = PL.language_id) AS PL2 ON P.id = PL2.publisher_id;",
             function(error, rows, fields) {
                 if (error) {
                     console.log("Error in three query.");
@@ -218,7 +218,7 @@ app.get('/constructed', function(request, response) {
                 }
             });
     } else if (request.query.q === 'italian') {
-        connection.query("SELECT ST.name AS story_type FROM Story_Type ST WHERE ST.id NOT IN ( SELECT DISTINCT St.type_id FROM Story St JOIN ( SELECT I.id FROM Issue I JOIN ( SELECT MAGAZINES.id FROM Country C JOIN ( SELECT S.id, S.country_id FROM Series S JOIN Series_Publication_Type SPT ON S.publication_type_id = SPT.id WHERE SPT.name = 'magazine') AS MAGAZINES ON C.id=MAGAZINES.country_id WHERE C.name = 'Italy' ) AS ITALIAN_MAGAZINES ON I.series_id = ITALIAN_MAGAZINES.id ) AS IM_ISSUES ON St.issue_id = IM_ISSUES.id);",
+        connection.query("SELECT ST.name AS story_type FROM Story_Type ST LEFT JOIN ( SELECT DISTINCT St.type_id FROM Story St JOIN ( SELECT I.id FROM Issue I JOIN ( SELECT MAGAZINES.id FROM Country C JOIN ( SELECT S.id, S.country_id FROM Series S JOIN Series_Publication_Type SPT ON S.publication_type_id = SPT.id WHERE SPT.name = 'magazine') AS MAGAZINES ON C.id=MAGAZINES.country_id WHERE C.name = 'Italy' ) AS ITALIAN_MAGAZINES ON I.series_id = ITALIAN_MAGAZINES.id ) AS IM_ISSUES ON St.issue_id = IM_ISSUES.id) AS STORIES ON ST.id = STORIES.type_id WHERE STORIES.type_id IS NULL;",
             function(error, rows, fields) {
                 if (error) {
                     console.log("Error in italian query.");
