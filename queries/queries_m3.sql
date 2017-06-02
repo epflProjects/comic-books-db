@@ -87,7 +87,7 @@ ON A.id = NATURE_ARTISTS.artist_id;
 
 
 -- e)  For each of the top-10 publishers in terms of published series, print the 3 most popular languages of their series. 
--- 104ms
+-- 152ms
 
 SELECT P.name AS publisher, PL2.name AS language
 FROM Publisher P
