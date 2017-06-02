@@ -152,7 +152,7 @@ ORDER BY BY_LANGUAGE.number_of_stories DESC;
 
 SELECT ST.name AS story_type
 FROM Story_Type ST
-WHERE ST.id NOT IN (
+LEFT JOIN (
 	SELECT DISTINCT St.type_id
 	FROM Story St
 	JOIN (
@@ -171,7 +171,9 @@ WHERE ST.id NOT IN (
 		) AS ITALIAN_MAGAZINES
 		ON I.series_id = ITALIAN_MAGAZINES.id
 	) AS IM_ISSUES
-	ON St.issue_id = IM_ISSUES.id);
+	ON St.issue_id = IM_ISSUES.id) AS STORIES
+ON ST.id = STORIES.type_id
+WHERE STORIES.type_id IS NULL;
 
 
 -- h)  Print the writers of cartoon stories who have worked as writers for more than one indicia publisher. 
