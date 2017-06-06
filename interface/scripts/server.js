@@ -55,6 +55,7 @@ app.post('/search', function(request, response) {
     const fromPart = createSearchFromPart(request.body.tables);
     const tables = request.body.tables;
     const txt = request.body.txt;
+    let starString = "";
     let queryString = "";
     let containText = "'" + "%" + txt + "%" + "'";
 
@@ -65,11 +66,15 @@ app.post('/search', function(request, response) {
                 if (queryString.length !== 0) {
                     queryString += " or ";
                 }
+                if (starString.length != 0) {
+                    starString += ", ";
+                }
+                starString += toTableName(tables[i]) + "." + result[j]["COLUMN_NAME"] + " as " + transformIdName(toTableName(tables[i]), result[j]["COLUMN_NAME"]);
                 queryString += toTableName(tables[i]) + "." + result[j]["COLUMN_NAME"] + " like " + containText;
             }
         }
 
-        connection.query("SELECT * FROM " + fromPart + " WHERE " + queryString + " LIMIT 500",
+        connection.query("SELECT " + starString + " FROM " + fromPart + " WHERE " + queryString + " LIMIT 500",
             function(error, results, fields) {
                 if (error) {
                     console.log("Error in the main Search query.");
@@ -79,6 +84,7 @@ app.post('/search', function(request, response) {
                     for (let i = 0; i < fields.length; i++) {
                         attributes_name.push(fields[i].name);
                     }
+
                     const jsonFile = {
                         "attributes_name": attributes_name,
                         "rows": results
@@ -610,6 +616,17 @@ function retrieveAttributes(table) {
                 }
             });
     });
+}
+
+/**
+ * transform the id name to an unique id
+ *
+ * @param tableName
+ * @param idName
+ * @returns {string}
+ */
+function transformIdName(tableName, idName) {
+    return tableName[0] + idName;
 }
 
 /**

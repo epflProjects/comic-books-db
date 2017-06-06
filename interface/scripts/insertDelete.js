@@ -11,7 +11,6 @@ $(document).ready(function() {
 
         $("#insert_form").submit(function(e) {
             e.preventDefault();
-
             $.ajax({
                 data: $(this).serialize(),
                 type: 'POST',
@@ -52,8 +51,7 @@ $(document).ready(function() {
                                 "</div>");
                     }
                 }
-            })
-
+            });
         });
     });
 
